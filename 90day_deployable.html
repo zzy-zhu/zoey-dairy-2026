@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>90-Day Self Transformation</title>
+    <style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh}
+.app{max-width:680px;margin:0 auto;padding:2rem 1rem}
+h1{font-size:22px;font-weight:600;margin-bottom:4px}
+.sub{font-size:13px;color:#666;margin-bottom:1.5rem}
+.tabs{display:flex;gap:4px;margin-bottom:1.5rem;border-bottom:1px solid #e5e5e5}
+.tab{font-size:13px;padding:7px 16px;border:none;background:none;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;font-family:inherit}
+.tab.active{color:#1a1a1a;border-bottom:2px solid #1a1a1a}
+.section{display:none}.section.active{display:block}
+.card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:1rem}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border:1px solid #d5d5d5;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;font-weight:500;color:#1a1a1a;transition:background .12s;font-family:inherit}
+.btn:hover{background:#f5f5f5}
+.btn.primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.btn.primary:hover{background:#333}
+.btn.green{color:#0d6644;border-color:#1D9E75}.btn.green:hover{background:#f0faf6}
+.btn.danger{color:#b91c1c;border-color:#ef4444}.btn.danger:hover{background:#fff5f5}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.stat{background:#f5f5f3;border-radius:8px;padding:.8rem;text-align:center}
+.stat-n{font-size:24px;font-weight:600}.stat-l{font-size:11px;color:#888;margin-top:2px}
+.progress-grid{display:grid;grid-template-columns:repeat(30,1fr);gap:3px;margin:8px 0}
+.day-dot{width:100%;aspect-ratio:1;border-radius:2px;background:#ebebeb;border:1px solid #ddd;cursor:pointer}
+.day-dot.done{background:#1D9E75;border-color:#0d6644}
+.day-dot.today{border:2px solid #1a1a1a}
+.month-label{font-size:11px;color:#888;margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:600;background:#ecfdf5;color:#065f46}
+.entry-row{display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid #f0f0f0;cursor:pointer}
+.entry-row:last-child{border-bottom:none}
+.entry-row:hover{opacity:.7}
+.q-row{padding:.45rem 0;border-bottom:1px solid #f0f0f0;font-size:13px;color:#666;display:flex;gap:8px}
+.q-row:last-child{border-bottom:none}
+.q-num{font-weight:600;color:#1a1a1a;min-width:18px}
+input[type=text]{width:100%;border:1px solid #e0e0e0;border-radius:8px;padding:.6rem .75rem;font-size:13px;font-family:inherit;color:#1a1a1a;background:#fff}
+input[type=text]:focus{outline:none;border-color:#1a1a1a}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;overflow-y:auto;padding:1.5rem 1rem}
+.overlay.open{display:block}
+.modal{background:#fff;border-radius:14px;padding:1.5rem;max-width:580px;margin:0 auto}
+.modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:8px}
+.modal-title{font-size:16px;font-weight:600}
+.modal-date{font-size:12px;color:#888;margin-top:2px}
+.timer-area{display:flex;align-items:center;gap:8px}
+.timer-disp{font-size:24px;font-weight:600;font-variant-numeric:tabular-nums}
+.q-block{margin-bottom:1.1rem}
+.q-label{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:.4rem;line-height:1.4}
+textarea.ans{width:100%;border:1px solid #e0e0e0;border-radius:8px;padding:.65rem .75rem;font-size:13px;font-family:inherit;color:#1a1a1a;background:#fafafa;resize:vertical;min-height:68px;line-height:1.6}
+textarea.ans:focus{outline:none;border-color:#1a1a1a;background:#fff}
+.archive-view{font-size:13px;line-height:1.85;color:#1a1a1a;white-space:pre-wrap;background:#fafafa;border-radius:8px;padding:1rem;border:1px solid #e8e8e8;max-height:420px;overflow-y:auto}
+.flex-gap{display:flex;gap:8px;flex-wrap:wrap}
+.divider{height:1px;background:#f0f0f0;margin:.75rem 0}
+.legend{display:flex;align-items:center;gap:12px;margin-top:8px}
+.legend-dot{width:11px;height:11px;border-radius:2px}
+.legend-label{font-size:11px;color:#888}
+#loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f5f5f3}
+.login-card{background:#fff;border:1px solid #e8e8e8;border-radius:14px;padding:2.5rem 2rem;max-width:360px;width:100%;text-align:center}
+.login-card h2{font-size:20px;font-weight:600;margin-bottom:.5rem}
+.login-card p{font-size:13px;color:#888;margin-bottom:1.5rem}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;display:inline-block;margin-left:6px;vertical-align:middle}
+.sync-dot.syncing{background:#f59e0b;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+</style>
+  </head>
+  <body>
+
+    <!-- LOGIN -->
+    <div id="loginScreen">
+      <div class="login-card">
+        <h2>90-Day Journal</h2>
+        <p>Sign in to sync your journal across all devices</p>
+        <button class="btn primary" onclick="signIn()"
+          style="width:100%;justify-content:center;gap:10px;padding:10px">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335"
+              d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z" /><path
+              fill="#4285F4"
+              d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" /><path
+              fill="#FBBC05"
+              d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" /><path
+              fill="#34A853"
+              d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.58-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" /></svg>
+          Continue with Google
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="mainApp" style="display:none">
+      <div class="app">
+        <div
+          style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <h1>90-Day Self Transformation</h1>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span id="syncIndicator" class="sync-dot" title="Synced"></span>
+            <img id="userAvatar"
+              style="width:28px;height:28px;border-radius:50%;cursor:pointer;display:none"
+              onclick="signOut()" title="Sign out" />
+          </div>
+        </div>
+        <p class="sub">Day <strong id="dayNum">1</strong> of 90 &nbsp;·&nbsp; 10
+          minutes every morning</p>
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('today')">Today</button>
+          <button class="tab" onclick="switchTab('progress')">Progress</button>
+          <button class="tab" onclick="switchTab('archive')">Archive</button>
+          <button class="tab" onclick="switchTab('settings')">Questions</button>
+        </div>
+
+        <!-- TODAY -->
+        <div class="section active" id="sec-today">
+          <div class="card" style="text-align:center;padding:1.5rem">
+            <p style="font-size:13px;color:#888;margin-bottom:4px"
+              id="todayDateLabel"></p>
+            <p style="font-size:15px;font-weight:600;margin-bottom:1.1rem"
+              id="todayStatus">Ready for your 10 minutes?</p>
+            <button class="btn primary" onclick="openWriting()"
+              id="startBtn">Start writing →</button>
+          </div>
+          <div
+            style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:.5rem">Today's
+            prompts</div>
+          <div class="card" style="padding:.5rem 1.25rem"
+            id="questionPreview"></div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="section" id="sec-progress">
+          <div class="stats">
+            <div class="stat"><div class="stat-n" id="sTotal">0</div><div
+                class="stat-l">Days done</div></div>
+            <div class="stat"><div class="stat-n" id="sStreak">0</div><div
+                class="stat-l">Day streak</div></div>
+            <div class="stat"><div class="stat-n" id="sPct"
+                style="color:#1D9E75">0%</div><div
+                class="stat-l">Complete</div></div>
+          </div>
+          <div class="card"><div class="month-label">Month 1 — Days
+              1–30</div><div class="progress-grid" id="grid1"></div></div>
+          <div class="card"><div class="month-label">Month 2 — Days
+              31–60</div><div class="progress-grid" id="grid2"></div></div>
+          <div class="card"><div class="month-label">Month 3 — Days
+              61–90</div><div class="progress-grid" id="grid3"></div></div>
+          <div class="legend">
+            <div class="legend-dot"
+              style="background:#1D9E75;border:1px solid #0d6644"></div><span
+              class="legend-label">Completed</span>
+            <div class="legend-dot"
+              style="background:#ebebeb;border:2px solid #1a1a1a"></div><span
+              class="legend-label">Today</span>
+          </div>
+        </div>
+
+        <!-- ARCHIVE -->
+        <div class="section" id="sec-archive">
+          <div class="card" id="archiveList"><p
+              style="font-size:13px;color:#888">No entries yet.</p></div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="section" id="sec-settings">
+          <div class="card">
+            <p style="font-size:13px;font-weight:600;margin-bottom:.75rem">Daily
+              prompts <span style="font-weight:400;color:#888">(edit or add your
+                own)</span></p>
+            <div id="editQList"></div>
+            <div style="margin-top:.75rem" class="flex-gap">
+              <button class="btn" onclick="addQ()">+ Add prompt</button>
+              <button class="btn green" onclick="saveQs()">Save prompts</button>
+            </div>
+          </div>
+          <div class="card">
+            <p style="font-size:13px;font-weight:600;margin-bottom:.35rem">Reset
+              90 days</p>
+            <p style="font-size:12px;color:#888;margin-bottom:.75rem">Restart
+              the counter from today. Your old entries are kept in Archive.</p>
+            <button class="btn danger" onclick="resetStart()">Reset start
+              date</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WRITING OVERLAY -->
+    <div class="overlay" id="writingOverlay">
+      <div class="modal">
+        <div class="modal-top">
+          <div><div class="modal-title" id="modalTitle">Day 1 Journal</div><div
+              class="modal-date" id="modalDate"></div></div>
+          <div class="timer-area">
+            <div class="timer-disp" id="timerDisp">10:00</div>
+            <button class="btn" id="timerBtn"
+              onclick="toggleTimer()">Start</button>
+            <button class="btn" onclick="closeWriting()"
+              style="padding:8px 10px">✕</button>
+          </div>
+        </div>
+        <div id="modalQA"></div>
+        <div class="divider"></div>
+        <div class="flex-gap">
+          <button class="btn primary" onclick="saveEntry()">Save &amp; check in
+            ✓</button>
+          <button class="btn" onclick="closeWriting()">Save draft</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARCHIVE VIEW OVERLAY -->
+    <div class="overlay" id="archiveOverlay">
+      <div class="modal">
+        <div class="modal-top">
+          <div class="modal-title" id="archTitle"></div>
+          <div class="flex-gap">
+            <button class="btn" onclick="copyArch()">Copy text</button>
+            <button class="btn"
+              onclick="document.getElementById('archiveOverlay').classList.remove('open')"
+              style="padding:8px 10px">✕</button>
+          </div>
+        </div>
+        <div class="archive-view" id="archBody"></div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- FIREBASE SDK -->
+    <script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import{getAuth,GoogleAuthProvider,signInWithPopup,signOut as fbSignOut,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import{getFirestore,doc,getDoc,setDoc,collection,getDocs,query,orderBy}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+// ─── PASTE YOUR FIREBASE CONFIG HERE ───────────────────────────
+const firebaseConfig = {
+   apiKey: "AIzaSyAOWluk40kVAhMDN2ls32mM-mBA4iBEBds",
+    authDomain: "zoey-daily-checkin.firebaseapp.com",
+    databaseURL: "https://zoey-daily-checkin-default-rtdb.firebaseio.com",
+    projectId: "zoey-daily-checkin",
+    storageBucket: "zoey-daily-checkin.firebasestorage.app",
+    messagingSenderId: "925337850992",
+    appId: "1:925337850992:web:831972f69f91a055ef90b5",
+    measurementId: "G-42YCWJ073G"
+};
+// ────────────────────────────────────────────────────────────────
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+const DEFAULT_Q=[
+  "What's one thing you're genuinely looking forward to today?",
+  "What did you learn yesterday — about yourself, your work, or the world?",
+  "What is one specific thing you want to move forward on in your learning today?",
+  "What's the smallest step you can take today toward your career goal?",
+  "How are you feeling right now? Any emotion worth noticing?",
+  "What's one thing you're grateful for, however small?",
+  "In 90 days, who do you want to have become?"
+];
+
+let uid=null, S={startDate:null,checkins:{},questions:[...DEFAULT_Q]}, entries=[];
+
+function todayStr(){return new Date().toISOString().split('T')[0];}
+function getDay(){return Math.min(Math.floor((new Date()-new Date(S.startDate))/864e5)+1,90);}
+function dayToDate(n){const d=new Date(S.startDate);d.setDate(d.getDate()+n-1);return d.toISOString().split('T')[0];}
+function fmtLong(d){return new Date(d).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});}
+function fmtShort(d){return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function calcStreak(){let s=0,d=new Date();while(true){const k=d.toISOString().split('T')[0];if(S.checkins[k]){s++;d.setDate(d.getDate()-1);}else break;}return s;}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function setSyncing(v){const el=document.getElementById('syncIndicator');el.classList.toggle('syncing',v);el.title=v?'Syncing…':'Synced';}
+
+async function loadFromFirebase(){
+  setSyncing(true);
+  try{
+    const metaSnap=await getDoc(doc(db,'users',uid,'data','meta'));
+    if(metaSnap.exists()){const m=metaSnap.data();S.startDate=m.startDate||todayStr();S.checkins=m.checkins||{};S.questions=m.questions||[...DEFAULT_Q];}
+    else{S.startDate=todayStr();await saveMetaToFirebase();}
+    const eSnap=await getDocs(query(collection(db,'users',uid,'entries'),orderBy('date','desc')));
+    entries=eSnap.docs.map(d=>({id:d.id,...d.data()}));
+  }catch(e){console.error(e);showToast('Load error — check Firestore rules');}
+  setSyncing(false);
+}
+
+async function saveMetaToFirebase(){
+  setSyncing(true);
+  try{await setDoc(doc(db,'users',uid,'data','meta'),{startDate:S.startDate,checkins:S.checkins,questions:S.questions});}
+  catch(e){console.error(e);showToast('Sync error');}
+  setSyncing(false);
+}
+
+async function saveEntryToFirebase(entry){
+  setSyncing(true);
+  try{await setDoc(doc(db,'users',uid,'entries',entry.date),entry);}
+  catch(e){console.error(e);showToast('Save error');}
+  setSyncing(false);
+}
+
+window.signIn=async()=>{
+  try{await signInWithPopup(auth,provider);}
+  catch(e){showToast('Sign-in failed: '+e.message);}
+};
+window.signOut=async()=>{
+  if(confirm('Sign out?')){await fbSignOut(auth);}
+};
+
+onAuthStateChanged(auth,async user=>{
+  if(user){
+    uid=user.uid;
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    const av=document.getElementById('userAvatar');
+    if(user.photoURL){av.src=user.photoURL;av.style.display='block';}
+    await loadFromFirebase();
+    renderToday();
+  } else {
+    uid=null;
+    document.getElementById('loginScreen').style.display='flex';
+    document.getElementById('mainApp').style.display='none';
+  }
+});
+
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['today','progress','archive','settings'][i]===t));
+  document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
+  document.getElementById('sec-'+t).classList.add('active');
+  if(t==='progress')renderProgress();
+  if(t==='archive')renderArchiveList();
+  if(t==='settings')renderEditQ();
+}
+window.switchTab=switchTab;
+
+function renderToday(){
+  if(!S.startDate)return;
+  document.getElementById('dayNum').textContent=getDay();
+  const today=todayStr();
+  document.getElementById('todayDateLabel').textContent=fmtLong(today);
+  const done=S.checkins[today];
+  document.getElementById('todayStatus').textContent=done?'Done for today — great work! 🎉':'Ready for your 10 minutes?';
+  document.getElementById('startBtn').textContent=done?'Write again →':'Start writing →';
+  const c=document.getElementById('questionPreview');c.innerHTML='';
+  S.questions.forEach((q,i)=>{
+    const d=document.createElement('div');d.className='q-row';
+    d.innerHTML=`<span class="q-num">${i+1}.</span><span>${q}</span>`;
+    c.appendChild(d);
+  });
+}
+
+function renderProgress(){
+  const done=Object.keys(S.checkins).length;
+  document.getElementById('sTotal').textContent=done;
+  document.getElementById('sStreak').textContent=calcStreak();
+  document.getElementById('sPct').textContent=Math.round(done/90*100)+'%';
+  const today=todayStr();
+  ['grid1','grid2','grid3'].forEach((id,mi)=>{
+    const g=document.getElementById(id);g.innerHTML='';
+    for(let i=mi*30;i<mi*30+30;i++){
+      const dot=document.createElement('div');dot.className='day-dot';
+      const dd=dayToDate(i+1);
+      if(S.checkins[dd])dot.classList.add('done');
+      if(dd===today)dot.classList.add('today');
+      dot.title=`Day ${i+1}`;
+      dot.onclick=()=>{const e=entries.find(x=>x.date===dd);if(e)openArchiveView(e);};
+      g.appendChild(dot);
+    }
+  });
+}
+
+function renderArchiveList(){
+  const el=document.getElementById('archiveList');
+  if(!entries.length){el.innerHTML='<p style="font-size:13px;color:#888">No entries yet.</p>';return;}
+  el.innerHTML='';
+  entries.forEach(e=>{
+    const n=Math.floor((new Date(e.date)-new Date(S.startDate))/864e5)+1;
+    const preview=e.article?e.article.slice(0,60)+'…':'No content';
+    const row=document.createElement('div');row.className='entry-row';
+    row.innerHTML=`<div><div style="font-size:13px;font-weight:600">Day ${n} — ${fmtShort(e.date)}</div><div style="font-size:12px;color:#888;margin-top:1px">${preview}</div></div><span class="badge">Saved</span>`;
+    row.onclick=()=>openArchiveView(e);
+    el.appendChild(row);
+  });
+}
+
+function openArchiveView(e){
+  const n=Math.floor((new Date(e.date)-new Date(S.startDate))/864e5)+1;
+  document.getElementById('archTitle').textContent=`Day ${n} — ${fmtShort(e.date)}`;
+  document.getElementById('archBody').textContent=e.article||'No content.';
+  document.getElementById('archiveOverlay').classList.add('open');
+}
+window.copyArch=()=>{
+  navigator.clipboard.writeText(document.getElementById('archBody').textContent)
+    .then(()=>showToast('Copied to clipboard!'))
+    .catch(()=>showToast('Please copy manually'));
+};
+
+let timerSecs=600,timerRunning=false,timerInterval=null;
+function resetTimer(){clearInterval(timerInterval);timerSecs=600;timerRunning=false;document.getElementById('timerDisp').textContent='10:00';document.getElementById('timerBtn').textContent='Start';}
+window.toggleTimer=()=>{
+  if(timerRunning){clearInterval(timerInterval);timerRunning=false;document.getElementById('timerBtn').textContent='Resume';}
+  else{timerRunning=true;document.getElementById('timerBtn').textContent='Pause';
+    timerInterval=setInterval(()=>{
+      if(--timerSecs<=0){clearInterval(timerInterval);timerRunning=false;timerSecs=0;document.getElementById('timerBtn').textContent='Done';}
+      document.getElementById('timerDisp').textContent=`${String(Math.floor(timerSecs/60)).padStart(2,'0')}:${String(timerSecs%60).padStart(2,'0')}`;
+    },1000);
+  }
+};
+
+window.openWriting=()=>{
+  const today=todayStr();
+  const existing=entries.find(e=>e.date===today);
+  document.getElementById('writingOverlay').classList.add('open');
+  document.getElementById('modalTitle').textContent=`Day ${getDay()} Journal`;
+  document.getElementById('modalDate').textContent=fmtLong(today);
+  const qa=document.getElementById('modalQA');qa.innerHTML='';
+  S.questions.forEach((q,i)=>{
+    const div=document.createElement('div');div.className='q-block';
+    div.innerHTML=`<div class="q-label">${i+1}. ${q}</div>`;
+    const ta=document.createElement('textarea');ta.className='ans';ta.id=`ans_${i}`;ta.placeholder='Your answer…';
+    if(existing&&existing.answers)ta.value=existing.answers[i]||'';
+    div.appendChild(ta);qa.appendChild(div);
+  });
+  resetTimer();
+  document.getElementById('writingOverlay').scrollTop=0;
+};
+window.closeWriting=()=>{document.getElementById('writingOverlay').classList.remove('open');clearInterval(timerInterval);timerRunning=false;};
+
+function buildArticle(answers){
+  const day=getDay(),date=fmtLong(todayStr());
+  let lines=[`Day ${day} — ${date}`,'─'.repeat(44),''];
+  S.questions.forEach((q,i)=>{const a=(answers[i]||'').trim();if(a){lines.push(q);lines.push(a);lines.push('');}});
+  return lines.join('\n');
+}
+
+window.saveEntry=async()=>{
+  const today=todayStr();
+  const answers=S.questions.map((_,i)=>(document.getElementById(`ans_${i}`)||{value:''}).value);
+  const article=buildArticle(answers);
+  S.checkins[today]=true;
+  const entry={date:today,answers,article};
+  const idx=entries.findIndex(e=>e.date===today);
+  if(idx>=0)entries[idx]=entry; else entries.unshift(entry);
+  await saveMetaToFirebase();
+  await saveEntryToFirebase(entry);
+  closeWriting();renderToday();
+  showToast('Saved & checked in ✓');
+};
+
+function renderEditQ(){
+  const c=document.getElementById('editQList');c.innerHTML='';
+  S.questions.forEach((q,i)=>{
+    const row=document.createElement('div');row.style.cssText='display:flex;gap:6px;margin-bottom:6px;align-items:center';
+    const inp=document.createElement('input');inp.type='text';inp.value=q;
+    const del=document.createElement('button');del.className='btn danger';del.style.cssText='font-size:12px;padding:5px 10px;white-space:nowrap';del.textContent='Remove';
+    del.onclick=()=>{S.questions.splice(i,1);renderEditQ();};
+    row.appendChild(inp);row.appendChild(del);c.appendChild(row);
+  });
+}
+window.addQ=()=>{S.questions.push('');renderEditQ();setTimeout(()=>{const ins=document.querySelectorAll('#editQList input');ins[ins.length-1].focus();},50);};
+window.saveQs=async()=>{
+  S.questions=Array.from(document.querySelectorAll('#editQList input')).map(i=>i.value.trim()).filter(Boolean);
+  await saveMetaToFirebase();renderToday();showToast('Prompts saved!');
+};
+window.resetStart=async()=>{
+  if(confirm('Reset start date to today? Old entries are kept.')){
+    S.startDate=todayStr();S.checkins={};
+    await saveMetaToFirebase();renderToday();switchTab('today');showToast('Restarted from today');
+  }
+};
+</script>
+  </body>
+</html>

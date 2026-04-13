@@ -10,8 +10,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .app{max-width:680px;margin:0 auto;padding:2rem 1rem}
 h1{font-size:22px;font-weight:600;margin-bottom:4px}
 .sub{font-size:13px;color:#666;margin-bottom:1.5rem}
-.tabs{display:flex;gap:4px;margin-bottom:1.5rem;border-bottom:1px solid #e5e5e5}
-.tab{font-size:13px;padding:7px 16px;border:none;background:none;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;font-family:inherit}
+.tabs{display:flex;gap:4px;margin-bottom:1.5rem;border-bottom:1px solid #e5e5e5;overflow-x:auto}
+.tab{font-size:13px;padding:7px 14px;border:none;background:none;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;font-family:inherit;white-space:nowrap;flex-shrink:0}
 .tab.active{color:#1a1a1a;border-bottom:2px solid #1a1a1a}
 .section{display:none}.section.active{display:block}
 .card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:1rem}
@@ -21,6 +21,7 @@ h1{font-size:22px;font-weight:600;margin-bottom:4px}
 .btn.primary:hover{background:#333}
 .btn.green{color:#0d6644;border-color:#1D9E75}.btn.green:hover{background:#f0faf6}
 .btn.danger{color:#b91c1c;border-color:#ef4444}.btn.danger:hover{background:#fff5f5}
+.btn.purple{color:#6d28d9;border-color:#7c3aed}.btn.purple:hover{background:#f5f3ff}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
 .stat{background:#f5f5f3;border-radius:8px;padding:.8rem;text-align:center}
 .stat-n{font-size:24px;font-weight:600}.stat-l{font-size:11px;color:#888;margin-top:2px}
@@ -30,6 +31,8 @@ h1{font-size:22px;font-weight:600;margin-bottom:4px}
 .day-dot.today{border:2px solid #1a1a1a}
 .month-label{font-size:11px;color:#888;margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:600;background:#ecfdf5;color:#065f46}
+.badge.purple{background:#f5f3ff;color:#6d28d9}
+.badge.orange{background:#fff7ed;color:#c2410c}
 .entry-row{display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid #f0f0f0;cursor:pointer}
 .entry-row:last-child{border-bottom:none}
 .entry-row:hover{opacity:.7}
@@ -46,16 +49,50 @@ input[type=text]:focus{outline:none;border-color:#1a1a1a}
 .modal-date{font-size:12px;color:#888;margin-top:2px}
 .timer-area{display:flex;align-items:center;gap:8px}
 .timer-disp{font-size:24px;font-weight:600;font-variant-numeric:tabular-nums}
+.habits-row{display:flex;gap:10px;margin-bottom:1.1rem;flex-wrap:wrap}
+.habit-chip{display:flex;align-items:center;gap:8px;padding:9px 14px;border:1.5px solid #e0e0e0;border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:#888;transition:all .12s;user-select:none;background:#fafafa}
+.habit-chip:hover{border-color:#aaa;background:#f5f5f5}
+.habit-chip.checked{border-color:#1D9E75;background:#ecfdf5;color:#065f46}
+.chip-icon{font-size:16px;line-height:1}
+.emotion-row{margin-bottom:1.1rem}
+.emotion-label{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:.4rem}
+.emotion-input{border:1.5px solid #e0e0e0;border-radius:10px;padding:.6rem .85rem;font-size:14px;font-family:inherit;color:#1a1a1a;background:#fafafa;width:220px;max-width:100%}
+.emotion-input:focus{outline:none;border-color:#1a1a1a;background:#fff}
+.habits-divider{height:1px;background:#f0f0f0;margin:.5rem 0 1rem}
 .q-block{margin-bottom:1.1rem}
 .q-label{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:.4rem;line-height:1.4}
 textarea.ans{width:100%;border:1px solid #e0e0e0;border-radius:8px;padding:.65rem .75rem;font-size:13px;font-family:inherit;color:#1a1a1a;background:#fafafa;resize:vertical;min-height:68px;line-height:1.6}
+textarea.ans.tall{min-height:110px}
 textarea.ans:focus{outline:none;border-color:#1a1a1a;background:#fff}
+.habits-row{display:flex;gap:10px;margin-bottom:1.1rem;flex-wrap:wrap}
+.habit-chip{display:flex;align-items:center;gap:8px;padding:9px 14px;border:1.5px solid #e0e0e0;border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:#888;transition:all .12s;user-select:none;background:#fafafa}
+.habit-chip:hover{border-color:#aaa;background:#f5f5f5}
+.habit-chip.checked{border-color:#1D9E75;background:#ecfdf5;color:#065f46}
+.habit-chip .chip-icon{font-size:16px;line-height:1}
+.emotion-row{margin-bottom:1.1rem}
+.emotion-label{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:.4rem}
+.emotion-input{border:1.5px solid #e0e0e0;border-radius:10px;padding:.6rem .85rem;font-size:14px;font-family:inherit;color:#1a1a1a;background:#fafafa;width:220px;max-width:100%}
+.emotion-input:focus{outline:none;border-color:#1a1a1a;background:#fff}
+.habits-divider{height:1px;background:#f0f0f0;margin:.5rem 0 1rem}
 .archive-view{font-size:13px;line-height:1.85;color:#1a1a1a;white-space:pre-wrap;background:#fafafa;border-radius:8px;padding:1rem;border:1px solid #e8e8e8;max-height:420px;overflow-y:auto}
 .flex-gap{display:flex;gap:8px;flex-wrap:wrap}
 .divider{height:1px;background:#f0f0f0;margin:.75rem 0}
-.legend{display:flex;align-items:center;gap:12px;margin-top:8px}
-.legend-dot{width:11px;height:11px;border-radius:2px}
+.legend{display:flex;align-items:center;gap:12px;margin-top:8px;flex-wrap:wrap}
+.legend-dot{width:11px;height:11px;border-radius:2px;flex-shrink:0}
 .legend-label{font-size:11px;color:#888}
+/* Weekly grid */
+.week-grid{display:grid;grid-template-columns:repeat(13,1fr);gap:4px;margin:8px 0}
+.week-cell{width:100%;aspect-ratio:1;border-radius:3px;background:#ebebeb;border:1px solid #ddd;cursor:pointer;position:relative}
+.week-cell.done{background:#7c3aed;border-color:#6d28d9}
+.week-cell.current{border:2px solid #1a1a1a}
+.week-cell.partial{background:#c4b5fd;border-color:#a78bfa}
+/* Weekly summary card */
+.week-summary-card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem;cursor:pointer}
+.week-summary-card:hover{border-color:#7c3aed}
+.week-summary-card .week-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.week-summary-card .week-meta{font-size:12px;color:#888}
+.week-banner{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #c4b5fd;border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.week-banner-text{font-size:13px;color:#6d28d9;font-weight:500}
 #loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f5f5f3}
 .login-card{background:#fff;border:1px solid #e8e8e8;border-radius:14px;padding:2.5rem 2rem;max-width:360px;width:100%;text-align:center}
 .login-card h2{font-size:20px;font-weight:600;margin-bottom:.5rem}
@@ -106,6 +143,7 @@ textarea.ans:focus{outline:none;border-color:#1a1a1a;background:#fff}
           minutes every morning</p>
         <div class="tabs">
           <button class="tab active" onclick="switchTab('today')">Today</button>
+          <button class="tab" onclick="switchTab('weekly')">Weekly</button>
           <button class="tab" onclick="switchTab('progress')">Progress</button>
           <button class="tab" onclick="switchTab('archive')">Archive</button>
           <button class="tab" onclick="switchTab('settings')">Questions</button>
@@ -113,6 +151,12 @@ textarea.ans:focus{outline:none;border-color:#1a1a1a;background:#fff}
 
         <!-- TODAY -->
         <div class="section active" id="sec-today">
+          <div id="saturdayBanner" style="display:none" class="week-banner">
+            <div class="week-banner-text">🗓 It's Saturday — time for your
+              weekly reflection!</div>
+            <button class="btn purple" onclick="switchTab('weekly')">Write
+              weekly →</button>
+          </div>
           <div class="card" style="text-align:center;padding:1.5rem">
             <p style="font-size:13px;color:#888;margin-bottom:4px"
               id="todayDateLabel"></p>
@@ -126,6 +170,34 @@ textarea.ans:focus{outline:none;border-color:#1a1a1a;background:#fff}
             prompts</div>
           <div class="card" style="padding:.5rem 1.25rem"
             id="questionPreview"></div>
+        </div>
+
+        <!-- WEEKLY -->
+        <div class="section" id="sec-weekly">
+          <div id="weeklyWriteArea"></div>
+          <div
+            style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:.5rem;margin-top:.5rem">Past
+            weekly summaries</div>
+          <div class="card" id="weeklyArchiveList"><p
+              style="font-size:13px;color:#888">No weekly summaries
+              yet.</p></div>
+          <div
+            style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:.5rem;margin-top:1rem">13-Week
+            Progress</div>
+          <div class="card">
+            <div class="week-grid" id="weekGrid"></div>
+            <div class="legend" style="margin-top:10px">
+              <div class="legend-dot"
+                style="background:#7c3aed;border:1px solid #6d28d9"></div><span
+                class="legend-label">Weekly summary done</span>
+              <div class="legend-dot"
+                style="background:#c4b5fd;border:1px solid #a78bfa"></div><span
+                class="legend-label">Partial (some days)</span>
+              <div class="legend-dot"
+                style="background:#ebebeb;border:2px solid #1a1a1a"></div><span
+                class="legend-label">Current week</span>
+            </div>
+          </div>
         </div>
 
         <!-- PROGRESS -->
@@ -174,6 +246,18 @@ textarea.ans:focus{outline:none;border-color:#1a1a1a;background:#fff}
             </div>
           </div>
           <div class="card">
+            <p
+              style="font-size:13px;font-weight:600;margin-bottom:.35rem">Weekly
+              prompts <span style="font-weight:400;color:#888">(edit or add your
+                own)</span></p>
+            <div id="editWQList"></div>
+            <div style="margin-top:.75rem" class="flex-gap">
+              <button class="btn" onclick="addWQ()">+ Add prompt</button>
+              <button class="btn green" onclick="saveWQs()">Save weekly
+                prompts</button>
+            </div>
+          </div>
+          <div class="card">
             <p style="font-size:13px;font-weight:600;margin-bottom:.35rem">Reset
               90 days</p>
             <p style="font-size:12px;color:#888;margin-bottom:.75rem">Restart
@@ -185,7 +269,7 @@ textarea.ans:focus{outline:none;border-color:#1a1a1a;background:#fff}
       </div>
     </div>
 
-    <!-- WRITING OVERLAY -->
+    <!-- DAILY WRITING OVERLAY -->
     <div class="overlay" id="writingOverlay">
       <div class="modal">
         <div class="modal-top">
@@ -205,6 +289,29 @@ textarea.ans:focus{outline:none;border-color:#1a1a1a;background:#fff}
           <button class="btn primary" onclick="saveEntry()">Save &amp; check in
             ✓</button>
           <button class="btn" onclick="closeWriting()">Save draft</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WEEKLY WRITING OVERLAY -->
+    <div class="overlay" id="weeklyWritingOverlay">
+      <div class="modal">
+        <div class="modal-top">
+          <div><div class="modal-title" id="weeklyModalTitle">Week
+              Summary</div><div class="modal-date"
+              id="weeklyModalDate"></div></div>
+          <div class="flex-gap">
+            <button class="btn" onclick="closeWeeklyWriting()"
+              style="padding:8px 10px">✕</button>
+          </div>
+        </div>
+        <div id="weeklyModalQA"></div>
+        <div class="divider"></div>
+        <div class="flex-gap">
+          <button class="btn primary"
+            style="background:#7c3aed;border-color:#7c3aed"
+            onclick="saveWeeklyEntry()">Save weekly summary ✓</button>
+          <button class="btn" onclick="closeWeeklyWriting()">Cancel</button>
         </div>
       </div>
     </div>
@@ -233,7 +340,6 @@ import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-ap
 import{getAuth,GoogleAuthProvider,signInWithPopup,signOut as fbSignOut,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import{getFirestore,doc,getDoc,setDoc,collection,getDocs,query,orderBy}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-// ─── PASTE YOUR FIREBASE CONFIG HERE ───────────────────────────
 const firebaseConfig = {
    apiKey: "AIzaSyAOWluk40kVAhMDN2ls32mM-mBA4iBEBds",
     authDomain: "zoey-daily-checkin.firebaseapp.com",
@@ -244,7 +350,6 @@ const firebaseConfig = {
     appId: "1:925337850992:web:831972f69f91a055ef90b5",
     measurementId: "G-42YCWJ073G"
 };
-// ────────────────────────────────────────────────────────────────
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -261,50 +366,121 @@ const DEFAULT_Q=[
   "In 90 days, who do you want to have become?"
 ];
 
-let uid=null, S={startDate:null,checkins:{},questions:[...DEFAULT_Q]}, entries=[];
+const DEFAULT_WEEKLY_Q=[
+  "What were your 3 biggest wins this week?",
+  "What drained you or didn't go as planned? What would you do differently?",
+  "What did you learn about yourself this week?",
+  "How did you make progress toward your 90-day goals?",
+  "What's the one thing you want to focus on next week?",
+  "How are you feeling about your direction right now — creatively, professionally, personally?"
+];
 
-function todayStr(){return new Date().toISOString().split('T')[0];}
-function getDay(){return Math.min(Math.floor((new Date()-new Date(S.startDate))/864e5)+1,90);}
-function dayToDate(n){const d=new Date(S.startDate);d.setDate(d.getDate()+n-1);return d.toISOString().split('T')[0];}
-function fmtLong(d){return new Date(d).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});}
-function fmtShort(d){return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
-function calcStreak(){let s=0,d=new Date();while(true){const k=d.toISOString().split('T')[0];if(S.checkins[k]){s++;d.setDate(d.getDate()-1);}else break;}return s;}
+let uid=null, S={startDate:null,checkins:{},questions:[...DEFAULT_Q],weeklyQuestions:[...DEFAULT_WEEKLY_Q]}, entries=[], weeklyEntries=[];
+
+// ─── DATE HELPERS (LOCAL TIME, no UTC shift) ─────────────────────────────────
+function todayStr(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function localDateStr(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function parseLocalDate(s){
+  const [y,m,d]=s.split('-').map(Number);
+  return new Date(y,m-1,d);
+}
+function diffDays(a,b){
+  // a,b are YYYY-MM-DD strings; returns (b - a) in whole days
+  return Math.round((parseLocalDate(b)-parseLocalDate(a))/864e5);
+}
+function getDay(){return Math.min(diffDays(S.startDate,todayStr())+1,90);}
+function dayToDate(n){
+  const d=parseLocalDate(S.startDate);
+  d.setDate(d.getDate()+n-1);
+  return localDateStr(d);
+}
+function fmtLong(s){return parseLocalDate(s).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});}
+function fmtShort(s){return parseLocalDate(s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+
+// ─── WEEK HELPERS ─────────────────────────────────────────────────────────────
+// Week N = days (N-1)*7+1 … N*7 within the 90-day period (13 weeks, last week may be shorter)
+function getWeekNum(){return Math.min(Math.ceil(getDay()/7),13);}
+function weekKey(n){
+  // returns the date of day (n-1)*7+1 — used as a stable key for the weekly entry
+  return dayToDate((n-1)*7+1);
+}
+function weekLabel(n){
+  const startDay=(n-1)*7+1;
+  const endDay=Math.min(n*7,90);
+  const startDate=fmtShort(dayToDate(startDay));
+  const endDate=fmtShort(dayToDate(endDay));
+  return `Week ${n} — ${startDate} → ${endDate}`;
+}
+function isSaturday(){return new Date().getDay()===6;}
+function checkinCountForWeek(n){
+  let count=0;
+  const startDay=(n-1)*7+1,endDay=Math.min(n*7,90);
+  for(let i=startDay;i<=endDay;i++){if(S.checkins[dayToDate(i)])count++;}
+  return count;
+}
+function calcStreak(){
+  const today=todayStr();
+  let s=0;
+  let d=new Date();
+  while(true){
+    const k=localDateStr(d);
+    if(S.checkins[k]){s++;d.setDate(d.getDate()-1);}
+    else break;
+  }
+  return s;
+}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 function setSyncing(v){const el=document.getElementById('syncIndicator');el.classList.toggle('syncing',v);el.title=v?'Syncing…':'Synced';}
 
+// ─── FIREBASE ─────────────────────────────────────────────────────────────────
 async function loadFromFirebase(){
   setSyncing(true);
   try{
     const metaSnap=await getDoc(doc(db,'users',uid,'data','meta'));
-    if(metaSnap.exists()){const m=metaSnap.data();S.startDate=m.startDate||todayStr();S.checkins=m.checkins||{};S.questions=m.questions||[...DEFAULT_Q];}
-    else{S.startDate=todayStr();await saveMetaToFirebase();}
+    if(metaSnap.exists()){
+      const m=metaSnap.data();
+      S.startDate=m.startDate||todayStr();
+      S.checkins=m.checkins||{};
+      S.questions=m.questions||[...DEFAULT_Q];
+      S.weeklyQuestions=m.weeklyQuestions||[...DEFAULT_WEEKLY_Q];
+    } else {
+      S.startDate=todayStr();
+      await saveMetaToFirebase();
+    }
     const eSnap=await getDocs(query(collection(db,'users',uid,'entries'),orderBy('date','desc')));
     entries=eSnap.docs.map(d=>({id:d.id,...d.data()}));
+    const wSnap=await getDocs(query(collection(db,'users',uid,'weeklyEntries'),orderBy('weekKey','desc')));
+    weeklyEntries=wSnap.docs.map(d=>({id:d.id,...d.data()}));
   }catch(e){console.error(e);showToast('Load error — check Firestore rules');}
   setSyncing(false);
 }
 
 async function saveMetaToFirebase(){
   setSyncing(true);
-  try{await setDoc(doc(db,'users',uid,'data','meta'),{startDate:S.startDate,checkins:S.checkins,questions:S.questions});}
+  try{await setDoc(doc(db,'users',uid,'data','meta'),{startDate:S.startDate,checkins:S.checkins,questions:S.questions,weeklyQuestions:S.weeklyQuestions});}
   catch(e){console.error(e);showToast('Sync error');}
   setSyncing(false);
 }
-
 async function saveEntryToFirebase(entry){
   setSyncing(true);
   try{await setDoc(doc(db,'users',uid,'entries',entry.date),entry);}
   catch(e){console.error(e);showToast('Save error');}
   setSyncing(false);
 }
+async function saveWeeklyEntryToFirebase(entry){
+  setSyncing(true);
+  try{await setDoc(doc(db,'users',uid,'weeklyEntries',entry.weekKey),entry);}
+  catch(e){console.error(e);showToast('Save error');}
+  setSyncing(false);
+}
 
-window.signIn=async()=>{
-  try{await signInWithPopup(auth,provider);}
-  catch(e){showToast('Sign-in failed: '+e.message);}
-};
-window.signOut=async()=>{
-  if(confirm('Sign out?')){await fbSignOut(auth);}
-};
+window.signIn=async()=>{try{await signInWithPopup(auth,provider);}catch(e){showToast('Sign-in failed: '+e.message);}};
+window.signOut=async()=>{if(confirm('Sign out?')){await fbSignOut(auth);}};
 
 onAuthStateChanged(auth,async user=>{
   if(user){
@@ -322,16 +498,20 @@ onAuthStateChanged(auth,async user=>{
   }
 });
 
+// ─── TAB SWITCHING ────────────────────────────────────────────────────────────
 function switchTab(t){
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['today','progress','archive','settings'][i]===t));
+  const tabs=['today','weekly','progress','archive','settings'];
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',tabs[i]===t));
   document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
   document.getElementById('sec-'+t).classList.add('active');
   if(t==='progress')renderProgress();
   if(t==='archive')renderArchiveList();
-  if(t==='settings')renderEditQ();
+  if(t==='settings'){renderEditQ();renderEditWQ();}
+  if(t==='weekly')renderWeeklySection();
 }
 window.switchTab=switchTab;
 
+// ─── TODAY ────────────────────────────────────────────────────────────────────
 function renderToday(){
   if(!S.startDate)return;
   document.getElementById('dayNum').textContent=getDay();
@@ -340,6 +520,11 @@ function renderToday(){
   const done=S.checkins[today];
   document.getElementById('todayStatus').textContent=done?'Done for today — great work! 🎉':'Ready for your 10 minutes?';
   document.getElementById('startBtn').textContent=done?'Write again →':'Start writing →';
+  // Saturday banner
+  const satBanner=document.getElementById('saturdayBanner');
+  const weekDone=weeklyEntries.find(w=>w.weekNum===getWeekNum());
+  satBanner.style.display=(isSaturday()&&!weekDone)?'flex':'none';
+  // question preview
   const c=document.getElementById('questionPreview');c.innerHTML='';
   S.questions.forEach((q,i)=>{
     const d=document.createElement('div');d.className='q-row';
@@ -348,6 +533,189 @@ function renderToday(){
   });
 }
 
+// ─── DAILY WRITING ────────────────────────────────────────────────────────────
+let timerSecs=600,timerRunning=false,timerInterval=null;
+function resetTimer(){clearInterval(timerInterval);timerSecs=600;timerRunning=false;document.getElementById('timerDisp').textContent='10:00';document.getElementById('timerBtn').textContent='Start';}
+window.toggleTimer=()=>{
+  if(timerRunning){clearInterval(timerInterval);timerRunning=false;document.getElementById('timerBtn').textContent='Resume';}
+  else{timerRunning=true;document.getElementById('timerBtn').textContent='Pause';
+    timerInterval=setInterval(()=>{
+      if(--timerSecs<=0){clearInterval(timerInterval);timerRunning=false;timerSecs=0;document.getElementById('timerBtn').textContent='Done';}
+      document.getElementById('timerDisp').textContent=`${String(Math.floor(timerSecs/60)).padStart(2,'0')}:${String(timerSecs%60).padStart(2,'0')}`;
+    },1000);
+  }
+};
+
+window.toggleChip=(id)=>{
+  const el=document.getElementById('chip-'+id);
+  el.classList.toggle('checked');
+};
+
+window.openWriting=()=>{
+  const today=todayStr();
+  const existing=entries.find(e=>e.date===today);
+  document.getElementById('writingOverlay').classList.add('open');
+  document.getElementById('modalTitle').textContent=`Day ${getDay()} Journal`;
+  document.getElementById('modalDate').textContent=fmtLong(today);
+  const qa=document.getElementById('modalQA');qa.innerHTML='';
+
+  // Habits + emotion block
+  const habitsDiv=document.createElement('div');
+  const exHabits=(existing&&existing.habits)||{};
+  const exEmotion=(existing&&existing.emotion)||'';
+  habitsDiv.innerHTML=`
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:8px">Today\u2019s habits</div>
+    <div class="habits-row">
+      <div class="habit-chip${exHabits.exercise?' checked':''}" id="chip-exercise" onclick="toggleChip('exercise')">
+        <span class="chip-icon">\u{1F3C3}</span> Exercise
+      </div>
+      <div class="habit-chip${exHabits.reading?' checked':''}" id="chip-reading" onclick="toggleChip('reading')">
+        <span class="chip-icon">\u{1F4D6}</span> Reading
+      </div>
+    </div>
+    <div class="emotion-row">
+      <div class="emotion-label">How are you feeling? <span style="font-weight:400;color:#888;font-size:12px">one word</span></div>
+      <input class="emotion-input" id="emotionWord" type="text" placeholder="e.g. hopeful, tired, focused\u2026" maxlength="30" value="${exEmotion}">
+    </div>
+    <div class="habits-divider"></div>`;
+  qa.appendChild(habitsDiv);
+
+  S.questions.forEach((q,i)=>{
+    const div=document.createElement('div');div.className='q-block';
+    div.innerHTML=`<div class="q-label">${i+1}. ${q}</div>`;
+    const ta=document.createElement('textarea');ta.className='ans';ta.id=`ans_${i}`;ta.placeholder='Your answer\u2026';
+    if(existing&&existing.answers)ta.value=existing.answers[i]||'';
+    div.appendChild(ta);qa.appendChild(div);
+  });
+  resetTimer();
+  document.getElementById('writingOverlay').scrollTop=0;
+};
+window.closeWriting=()=>{document.getElementById('writingOverlay').classList.remove('open');clearInterval(timerInterval);timerRunning=false;};
+
+function buildArticle(answers,habits,emotion){
+  const day=getDay(),date=fmtLong(todayStr());
+  let lines=[`Day ${day} \u2014 ${date}`,'\u2500'.repeat(44),''];
+  const habitParts=[];
+  if(habits&&habits.exercise)habitParts.push('\u{1F3C3} Exercise');
+  if(habits&&habits.reading)habitParts.push('\u{1F4D6} Reading');
+  if(habitParts.length)lines.push('Habits: '+habitParts.join('  \u00b7  '));
+  if(emotion)lines.push('Feeling: '+emotion);
+  if(habitParts.length||emotion)lines.push('');
+  S.questions.forEach((q,i)=>{const a=(answers[i]||'').trim();if(a){lines.push(q);lines.push(a);lines.push('');}});
+  return lines.join('\n');
+}
+
+window.saveEntry=async()=>{
+  const today=todayStr();
+  const answers=S.questions.map((_,i)=>(document.getElementById(`ans_${i}`)||{value:''}).value);
+  const habits={
+    exercise:document.getElementById('chip-exercise')?.classList.contains('checked')||false,
+    reading:document.getElementById('chip-reading')?.classList.contains('checked')||false
+  };
+  const emotion=(document.getElementById('emotionWord')?.value||'').trim();
+  const article=buildArticle(answers,habits,emotion);
+  S.checkins[today]=true;
+  const entry={date:today,answers,habits,emotion,article};
+  const idx=entries.findIndex(e=>e.date===today);
+  if(idx>=0)entries[idx]=entry; else entries.unshift(entry);
+  await saveMetaToFirebase();
+  await saveEntryToFirebase(entry);
+  closeWriting();renderToday();
+  showToast('Saved & checked in \u2713');
+};
+
+// ─── WEEKLY SECTION ───────────────────────────────────────────────────────────
+function renderWeeklySection(){
+  if(!S.startDate)return;
+  const wNum=getWeekNum();
+  const wk=weekKey(wNum);
+  const existing=weeklyEntries.find(w=>w.weekKey===wk);
+  const area=document.getElementById('weeklyWriteArea');
+
+  if(isSaturday()||!existing){
+    // Show write card for current week
+    area.innerHTML=`
+      <div class="card" style="background:linear-gradient(135deg,#fdf4ff,#f5f3ff);border:1px solid #e9d5ff">
+        <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#7c3aed;margin-bottom:4px">${weekLabel(wNum)}</p>
+        <p style="font-size:15px;font-weight:600;margin-bottom:1.1rem;color:#1a1a1a">${existing?'Update this week\'s summary':'Write your weekly reflection'}</p>
+        <button class="btn" style="background:#7c3aed;color:#fff;border-color:#7c3aed" onclick="openWeeklyWriting(${wNum})">
+          ${existing?'Edit summary →':'Start weekly reflection →'}
+        </button>
+      </div>`;
+  } else {
+    area.innerHTML='';
+  }
+
+  // Past weekly entries list
+  const list=document.getElementById('weeklyArchiveList');
+  if(!weeklyEntries.length){list.innerHTML='<p style="font-size:13px;color:#888">No weekly summaries yet.</p>';return;}
+  list.innerHTML='';
+  weeklyEntries.forEach(w=>{
+    const preview=w.article?w.article.slice(0,70)+'…':'No content';
+    const row=document.createElement('div');row.className='week-summary-card';
+    row.innerHTML=`<div class="week-title">${weekLabel(w.weekNum)}</div><div class="week-meta">${preview}</div>`;
+    row.onclick=()=>openArchiveViewRaw(`Week ${w.weekNum} Summary`,w.article||'No content.');
+    list.appendChild(row);
+  });
+
+  // 13-week grid
+  const grid=document.getElementById('weekGrid');grid.innerHTML='';
+  const today=todayStr();
+  for(let n=1;n<=13;n++){
+    const cell=document.createElement('div');cell.className='week-cell';
+    const wkStr=weekKey(n);
+    const hasSummary=weeklyEntries.find(w=>w.weekKey===wkStr);
+    const count=checkinCountForWeek(n);
+    const isCurrentWeek=n===wNum;
+    if(hasSummary)cell.classList.add('done');
+    else if(count>0)cell.classList.add('partial');
+    if(isCurrentWeek)cell.classList.add('current');
+    cell.title=`${weekLabel(n)} · ${count} daily check-ins${hasSummary?' · Summary written':''}`;
+    cell.onclick=()=>{const w=weeklyEntries.find(x=>x.weekKey===wkStr);if(w)openArchiveViewRaw(`Week ${w.weekNum} Summary`,w.article||'No content.');};
+    grid.appendChild(cell);
+  }
+}
+
+window.openWeeklyWriting=(wNum)=>{
+  const wk=weekKey(wNum);
+  const existing=weeklyEntries.find(w=>w.weekKey===wk);
+  document.getElementById('weeklyWritingOverlay').classList.add('open');
+  document.getElementById('weeklyModalTitle').textContent=`Week ${wNum} Reflection`;
+  document.getElementById('weeklyModalDate').textContent=weekLabel(wNum);
+  const qa=document.getElementById('weeklyModalQA');qa.innerHTML='';
+  S.weeklyQuestions.forEach((q,i)=>{
+    const div=document.createElement('div');div.className='q-block';
+    div.innerHTML=`<div class="q-label">${i+1}. ${q}</div>`;
+    const ta=document.createElement('textarea');ta.className='ans tall';ta.id=`wans_${i}`;ta.placeholder='Your reflection…';
+    if(existing&&existing.answers)ta.value=existing.answers[i]||'';
+    div.appendChild(ta);qa.appendChild(div);
+  });
+  // Store current weekNum for save
+  document.getElementById('weeklyWritingOverlay').dataset.weekNum=wNum;
+  document.getElementById('weeklyWritingOverlay').scrollTop=0;
+};
+window.closeWeeklyWriting=()=>document.getElementById('weeklyWritingOverlay').classList.remove('open');
+
+window.saveWeeklyEntry=async()=>{
+  const wNum=parseInt(document.getElementById('weeklyWritingOverlay').dataset.weekNum);
+  const wk=weekKey(wNum);
+  const answers=S.weeklyQuestions.map((_,i)=>(document.getElementById(`wans_${i}`)||{value:''}).value);
+  // Build article
+  let lines=[`Week ${wNum} Reflection — ${weekLabel(wNum)}`,'─'.repeat(44),''];
+  S.weeklyQuestions.forEach((q,i)=>{const a=(answers[i]||'').trim();if(a){lines.push(q);lines.push(a);lines.push('');}});
+  const article=lines.join('\n');
+  const entry={weekKey:wk,weekNum:wNum,answers,article};
+  const idx=weeklyEntries.findIndex(w=>w.weekKey===wk);
+  if(idx>=0)weeklyEntries[idx]=entry; else weeklyEntries.unshift(entry);
+  weeklyEntries.sort((a,b)=>b.weekNum-a.weekNum);
+  await saveWeeklyEntryToFirebase(entry);
+  closeWeeklyWriting();
+  renderWeeklySection();
+  renderToday();
+  showToast('Weekly summary saved ✓');
+};
+
+// ─── PROGRESS ─────────────────────────────────────────────────────────────────
 function renderProgress(){
   const done=Object.keys(S.checkins).length;
   document.getElementById('sTotal').textContent=done;
@@ -368,12 +736,13 @@ function renderProgress(){
   });
 }
 
+// ─── ARCHIVE ──────────────────────────────────────────────────────────────────
 function renderArchiveList(){
   const el=document.getElementById('archiveList');
   if(!entries.length){el.innerHTML='<p style="font-size:13px;color:#888">No entries yet.</p>';return;}
   el.innerHTML='';
   entries.forEach(e=>{
-    const n=Math.floor((new Date(e.date)-new Date(S.startDate))/864e5)+1;
+    const n=diffDays(S.startDate,e.date)+1;
     const preview=e.article?e.article.slice(0,60)+'…':'No content';
     const row=document.createElement('div');row.className='entry-row';
     row.innerHTML=`<div><div style="font-size:13px;font-weight:600">Day ${n} — ${fmtShort(e.date)}</div><div style="font-size:12px;color:#888;margin-top:1px">${preview}</div></div><span class="badge">Saved</span>`;
@@ -383,9 +752,12 @@ function renderArchiveList(){
 }
 
 function openArchiveView(e){
-  const n=Math.floor((new Date(e.date)-new Date(S.startDate))/864e5)+1;
-  document.getElementById('archTitle').textContent=`Day ${n} — ${fmtShort(e.date)}`;
-  document.getElementById('archBody').textContent=e.article||'No content.';
+  const n=diffDays(S.startDate,e.date)+1;
+  openArchiveViewRaw(`Day ${n} — ${fmtShort(e.date)}`,e.article||'No content.');
+}
+function openArchiveViewRaw(title,body){
+  document.getElementById('archTitle').textContent=title;
+  document.getElementById('archBody').textContent=body;
   document.getElementById('archiveOverlay').classList.add('open');
 }
 window.copyArch=()=>{
@@ -394,58 +766,7 @@ window.copyArch=()=>{
     .catch(()=>showToast('Please copy manually'));
 };
 
-let timerSecs=600,timerRunning=false,timerInterval=null;
-function resetTimer(){clearInterval(timerInterval);timerSecs=600;timerRunning=false;document.getElementById('timerDisp').textContent='10:00';document.getElementById('timerBtn').textContent='Start';}
-window.toggleTimer=()=>{
-  if(timerRunning){clearInterval(timerInterval);timerRunning=false;document.getElementById('timerBtn').textContent='Resume';}
-  else{timerRunning=true;document.getElementById('timerBtn').textContent='Pause';
-    timerInterval=setInterval(()=>{
-      if(--timerSecs<=0){clearInterval(timerInterval);timerRunning=false;timerSecs=0;document.getElementById('timerBtn').textContent='Done';}
-      document.getElementById('timerDisp').textContent=`${String(Math.floor(timerSecs/60)).padStart(2,'0')}:${String(timerSecs%60).padStart(2,'0')}`;
-    },1000);
-  }
-};
-
-window.openWriting=()=>{
-  const today=todayStr();
-  const existing=entries.find(e=>e.date===today);
-  document.getElementById('writingOverlay').classList.add('open');
-  document.getElementById('modalTitle').textContent=`Day ${getDay()} Journal`;
-  document.getElementById('modalDate').textContent=fmtLong(today);
-  const qa=document.getElementById('modalQA');qa.innerHTML='';
-  S.questions.forEach((q,i)=>{
-    const div=document.createElement('div');div.className='q-block';
-    div.innerHTML=`<div class="q-label">${i+1}. ${q}</div>`;
-    const ta=document.createElement('textarea');ta.className='ans';ta.id=`ans_${i}`;ta.placeholder='Your answer…';
-    if(existing&&existing.answers)ta.value=existing.answers[i]||'';
-    div.appendChild(ta);qa.appendChild(div);
-  });
-  resetTimer();
-  document.getElementById('writingOverlay').scrollTop=0;
-};
-window.closeWriting=()=>{document.getElementById('writingOverlay').classList.remove('open');clearInterval(timerInterval);timerRunning=false;};
-
-function buildArticle(answers){
-  const day=getDay(),date=fmtLong(todayStr());
-  let lines=[`Day ${day} — ${date}`,'─'.repeat(44),''];
-  S.questions.forEach((q,i)=>{const a=(answers[i]||'').trim();if(a){lines.push(q);lines.push(a);lines.push('');}});
-  return lines.join('\n');
-}
-
-window.saveEntry=async()=>{
-  const today=todayStr();
-  const answers=S.questions.map((_,i)=>(document.getElementById(`ans_${i}`)||{value:''}).value);
-  const article=buildArticle(answers);
-  S.checkins[today]=true;
-  const entry={date:today,answers,article};
-  const idx=entries.findIndex(e=>e.date===today);
-  if(idx>=0)entries[idx]=entry; else entries.unshift(entry);
-  await saveMetaToFirebase();
-  await saveEntryToFirebase(entry);
-  closeWriting();renderToday();
-  showToast('Saved & checked in ✓');
-};
-
+// ─── SETTINGS ────────────────────────────────────────────────────────────────
 function renderEditQ(){
   const c=document.getElementById('editQList');c.innerHTML='';
   S.questions.forEach((q,i)=>{
@@ -461,6 +782,23 @@ window.saveQs=async()=>{
   S.questions=Array.from(document.querySelectorAll('#editQList input')).map(i=>i.value.trim()).filter(Boolean);
   await saveMetaToFirebase();renderToday();showToast('Prompts saved!');
 };
+
+function renderEditWQ(){
+  const c=document.getElementById('editWQList');c.innerHTML='';
+  S.weeklyQuestions.forEach((q,i)=>{
+    const row=document.createElement('div');row.style.cssText='display:flex;gap:6px;margin-bottom:6px;align-items:center';
+    const inp=document.createElement('input');inp.type='text';inp.value=q;
+    const del=document.createElement('button');del.className='btn danger';del.style.cssText='font-size:12px;padding:5px 10px;white-space:nowrap';del.textContent='Remove';
+    del.onclick=()=>{S.weeklyQuestions.splice(i,1);renderEditWQ();};
+    row.appendChild(inp);row.appendChild(del);c.appendChild(row);
+  });
+}
+window.addWQ=()=>{S.weeklyQuestions.push('');renderEditWQ();setTimeout(()=>{const ins=document.querySelectorAll('#editWQList input');ins[ins.length-1].focus();},50);};
+window.saveWQs=async()=>{
+  S.weeklyQuestions=Array.from(document.querySelectorAll('#editWQList input')).map(i=>i.value.trim()).filter(Boolean);
+  await saveMetaToFirebase();showToast('Weekly prompts saved!');
+};
+
 window.resetStart=async()=>{
   if(confirm('Reset start date to today? Old entries are kept.')){
     S.startDate=todayStr();S.checkins={};

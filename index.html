@@ -59,6 +59,14 @@ input[type=text]:focus{outline:none;border-color:#1a1a1a}
 .emotion-input{border:1.5px solid #e0e0e0;border-radius:10px;padding:.6rem .85rem;font-size:14px;font-family:inherit;color:#1a1a1a;background:#fafafa;width:220px;max-width:100%}
 .emotion-input:focus{outline:none;border-color:#1a1a1a;background:#fff}
 .habits-divider{height:1px;background:#f0f0f0;margin:.5rem 0 1rem}
+.insight-card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:.75rem}
+.insight-num{display:inline-block;width:22px;height:22px;border-radius:50%;background:#92400e;color:#fff;font-size:11px;font-weight:700;text-align:center;line-height:22px;margin-bottom:.5rem}
+.insight-text{font-size:13px;line-height:1.75;color:#1a1a1a;white-space:pre-wrap}
+.loading-dots{display:flex;gap:6px;justify-content:center;padding:.5rem 0}
+.loading-dots span{width:7px;height:7px;border-radius:50%;background:#d4a76a;animation:dotpulse 1.2s infinite}
+.loading-dots span:nth-child(2){animation-delay:.2s}
+.loading-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dotpulse{0%,80%,100%{transform:scale(0.6);opacity:.4}40%{transform:scale(1);opacity:1}}
 .q-block{margin-bottom:1.1rem}
 .q-label{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:.4rem;line-height:1.4}
 textarea.ans{width:100%;border:1px solid #e0e0e0;border-radius:8px;padding:.65rem .75rem;font-size:13px;font-family:inherit;color:#1a1a1a;background:#fafafa;resize:vertical;min-height:68px;line-height:1.6}
@@ -144,6 +152,8 @@ textarea.ans:focus{outline:none;border-color:#1a1a1a;background:#fff}
         <div class="tabs">
           <button class="tab active" onclick="switchTab('today')">Today</button>
           <button class="tab" onclick="switchTab('weekly')">Weekly</button>
+          <button class="tab" onclick="switchTab('insights')">✦
+            Insights</button>
           <button class="tab" onclick="switchTab('progress')">Progress</button>
           <button class="tab" onclick="switchTab('archive')">Archive</button>
           <button class="tab" onclick="switchTab('settings')">Questions</button>
@@ -231,6 +241,61 @@ textarea.ans:focus{outline:none;border-color:#1a1a1a;background:#fff}
         <div class="section" id="sec-archive">
           <div class="card" id="archiveList"><p
               style="font-size:13px;color:#888">No entries yet.</p></div>
+        </div>
+
+        <!-- INSIGHTS -->
+        <div class="section" id="sec-insights">
+          <div class="card"
+            style="border:1px solid #e8d5b7;background:linear-gradient(135deg,#fffbf0,#fff8e8)">
+            <p
+              style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#92400e;margin-bottom:6px">AI
+              Weekly Digest</p>
+            <p style="font-size:13px;color:#78350f;margin-bottom:1rem">Select a
+              week and Claude will generate 3 insights from your daily entries —
+              patterns, growth moments, and what to carry forward.</p>
+            <div style="margin-bottom:.85rem">
+              <div
+                style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#92400e;margin-bottom:5px">Anthropic
+                API Key</div>
+              <div
+                style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <input type="password" id="apiKeyInput" placeholder="sk-ant-..."
+                  style="border:1px solid #d6b896;border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;background:#fff;color:#1a1a1a;width:260px;max-width:100%">
+                <button class="btn"
+                  style="font-size:12px;padding:7px 12px;border-color:#d6b896;color:#92400e"
+                  onclick="saveApiKey()">Save key</button>
+                <span id="apiKeySaved"
+                  style="font-size:12px;color:#16a34a;display:none">Saved
+                  ✓</span>
+              </div>
+              <p style="font-size:11px;color:#a16207;margin-top:4px">Stored in
+                your browser only. Get yours at console.anthropic.com</p>
+            </div>
+            <div
+              style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <select id="insightWeekSelect"
+                style="border:1px solid #d6b896;border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;background:#fff;color:#1a1a1a;cursor:pointer">
+                <option value>Choose a week...</option>
+              </select>
+              <button class="btn" id="insightBtn"
+                style="background:#92400e;color:#fff;border-color:#92400e"
+                onclick="generateInsights()">Generate insights →</button>
+            </div>
+          </div>
+          <div id="insightResult" style="display:none">
+            <div id="insightCards"></div>
+            <div style="margin-top:.5rem" class="flex-gap">
+              <button class="btn" onclick="downloadInsights()">↓ Download
+                summary</button>
+            </div>
+          </div>
+          <div id="insightLoading" style="display:none" class="card"
+            style="text-align:center">
+            <p style="font-size:13px;color:#888;padding:.5rem 0">✦ Claude is
+              reading your week…</p>
+            <div
+              class="loading-dots"><span></span><span></span><span></span></div>
+          </div>
         </div>
 
         <!-- SETTINGS -->
@@ -329,6 +394,50 @@ textarea.ans:focus{outline:none;border-color:#1a1a1a;background:#fff}
           </div>
         </div>
         <div class="archive-view" id="archBody"></div>
+      </div>
+    </div>
+
+    <!-- EDIT ENTRY OVERLAY -->
+    <div class="overlay" id="editEntryOverlay">
+      <div class="modal">
+        <div class="modal-top">
+          <div><div class="modal-title">Edit Entry</div><div class="modal-date"
+              id="editEntrySubtitle"></div></div>
+          <button class="btn" onclick="closeEditEntry()"
+            style="padding:8px 10px">✕</button>
+        </div>
+        <div class="q-block">
+          <div class="q-label">Date <span
+              style="font-weight:400;color:#888;font-size:12px">(YYYY-MM-DD)</span></div>
+          <input type="text" id="editEntryDate" placeholder="2026-04-13"
+            style="margin-bottom:.75rem">
+        </div>
+        <div class="q-block">
+          <div class="q-label">Habits</div>
+          <div class="habits-row" style="margin-bottom:.5rem">
+            <div class="habit-chip" id="edit-chip-exercise"
+              onclick="toggleEditChip('exercise')"><span
+                class="chip-icon">🏃</span> Exercise</div>
+            <div class="habit-chip" id="edit-chip-reading"
+              onclick="toggleEditChip('reading')"><span
+                class="chip-icon">📖</span> Reading</div>
+          </div>
+        </div>
+        <div class="q-block">
+          <div class="q-label">Feeling <span
+              style="font-weight:400;color:#888;font-size:12px">one
+              word</span></div>
+          <input class="emotion-input" id="editEmotionWord" type="text"
+            placeholder="e.g. hopeful, tired…" maxlength="30"
+            style="margin-bottom:.75rem">
+        </div>
+        <div id="editEntryQA"></div>
+        <div class="divider"></div>
+        <div class="flex-gap">
+          <button class="btn primary" onclick="saveEditEntry()">Save changes
+            ✓</button>
+          <button class="btn" onclick="closeEditEntry()">Cancel</button>
+        </div>
       </div>
     </div>
 
@@ -500,7 +609,7 @@ onAuthStateChanged(auth,async user=>{
 
 // ─── TAB SWITCHING ────────────────────────────────────────────────────────────
 function switchTab(t){
-  const tabs=['today','weekly','progress','archive','settings'];
+  const tabs=['today','weekly','insights','progress','archive','settings'];
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',tabs[i]===t));
   document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
   document.getElementById('sec-'+t).classList.add('active');
@@ -753,11 +862,22 @@ function renderArchiveList(){
 
 function openArchiveView(e){
   const n=diffDays(S.startDate,e.date)+1;
-  openArchiveViewRaw(`Day ${n} — ${fmtShort(e.date)}`,e.article||'No content.');
+  document.getElementById('archTitle').textContent=`Day ${n} — ${fmtShort(e.date)}`;
+  document.getElementById('archBody').textContent=e.article||'No content.';
+  // Show edit button
+  let editBtn=document.getElementById('archEditBtn');
+  if(!editBtn){
+    editBtn=document.createElement('button');editBtn.id='archEditBtn';editBtn.className='btn';editBtn.textContent='Edit entry';
+    document.querySelector('#archiveOverlay .modal-top .flex-gap').prepend(editBtn);
+  }
+  editBtn.onclick=()=>{document.getElementById('archiveOverlay').classList.remove('open');openEditEntry(e);};
+  document.getElementById('archiveOverlay').classList.add('open');
 }
 function openArchiveViewRaw(title,body){
   document.getElementById('archTitle').textContent=title;
   document.getElementById('archBody').textContent=body;
+  // Remove edit btn if present (weekly summaries not editable this way)
+  const eb=document.getElementById('archEditBtn');if(eb)eb.remove();
   document.getElementById('archiveOverlay').classList.add('open');
 }
 window.copyArch=()=>{
@@ -798,6 +918,150 @@ window.saveWQs=async()=>{
   S.weeklyQuestions=Array.from(document.querySelectorAll('#editWQList input')).map(i=>i.value.trim()).filter(Boolean);
   await saveMetaToFirebase();showToast('Weekly prompts saved!');
 };
+
+// --- EDIT ENTRY ---
+let editingEntry=null;
+window.toggleEditChip=(id)=>{document.getElementById('edit-chip-'+id).classList.toggle('checked');};
+window.openEditEntry=(e)=>{
+  editingEntry=e;
+  document.getElementById('editEntryOverlay').classList.add('open');
+  document.getElementById('editEntrySubtitle').textContent=fmtLong(e.date);
+  document.getElementById('editEntryDate').value=e.date;
+  const exH=(e.habits)||{};
+  document.getElementById('edit-chip-exercise').classList.toggle('checked',!!exH.exercise);
+  document.getElementById('edit-chip-reading').classList.toggle('checked',!!exH.reading);
+  document.getElementById('editEmotionWord').value=e.emotion||'';
+  const qa=document.getElementById('editEntryQA');qa.innerHTML='';
+  S.questions.forEach((q,i)=>{
+    const div=document.createElement('div');div.className='q-block';
+    div.innerHTML=`<div class="q-label">${i+1}. ${q}</div>`;
+    const ta=document.createElement('textarea');ta.className='ans';ta.id=`edit_ans_${i}`;ta.placeholder='Your answer...';
+    ta.value=(e.answers&&e.answers[i])||'';
+    div.appendChild(ta);qa.appendChild(div);
+  });
+  document.getElementById('editEntryOverlay').scrollTop=0;
+};
+window.closeEditEntry=()=>{document.getElementById('editEntryOverlay').classList.remove('open');editingEntry=null;};
+window.saveEditEntry=async()=>{
+  if(!editingEntry)return;
+  const oldDate=editingEntry.date;
+  const newDate=document.getElementById('editEntryDate').value.trim();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(newDate)){showToast('Invalid date format');return;}
+  const answers=S.questions.map((_,i)=>(document.getElementById(`edit_ans_${i}`)||{value:''}).value);
+  const habits={
+    exercise:document.getElementById('edit-chip-exercise').classList.contains('checked'),
+    reading:document.getElementById('edit-chip-reading').classList.contains('checked')
+  };
+  const emotion=document.getElementById('editEmotionWord').value.trim();
+  const habitParts=[];
+  if(habits.exercise)habitParts.push('Exercise');
+  if(habits.reading)habitParts.push('Reading');
+  const dayN=diffDays(S.startDate,newDate)+1;
+  let lines=[`Day ${dayN} - ${fmtLong(newDate)}`,'-'.repeat(44),''];
+  if(habitParts.length)lines.push('Habits: '+habitParts.join(' / '));
+  if(emotion)lines.push('Feeling: '+emotion);
+  if(habitParts.length||emotion)lines.push('');
+  S.questions.forEach((q,i)=>{const a=(answers[i]||'').trim();if(a){lines.push(q);lines.push(a);lines.push('');}});
+  const article=lines.join('\n');
+  const updatedEntry={...editingEntry,date:newDate,answers,habits,emotion,article};
+  if(oldDate!==newDate){
+    delete S.checkins[oldDate];
+    try{
+      const {deleteDoc,doc:fdoc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      await deleteDoc(fdoc(db,'users',uid,'entries',oldDate));
+    }catch(err){console.error(err);}
+    const idx=entries.findIndex(x=>x.date===oldDate);
+    if(idx>=0)entries.splice(idx,1);
+  }
+  S.checkins[newDate]=true;
+  const idx2=entries.findIndex(x=>x.date===newDate);
+  if(idx2>=0)entries[idx2]=updatedEntry; else entries.unshift(updatedEntry);
+  entries.sort((a,b)=>b.date.localeCompare(a.date));
+  await saveMetaToFirebase();
+  await saveEntryToFirebase(updatedEntry);
+  closeEditEntry();renderArchiveList();renderToday();
+  showToast('Entry updated');
+};
+
+// --- INSIGHTS ---
+let lastInsightText='';
+function renderInsightsTab(){
+  // Load saved API key
+  const saved=localStorage.getItem('anthropic_api_key')||'';
+  const keyInput=document.getElementById('apiKeyInput');
+  if(keyInput&&saved)keyInput.value=saved;
+  const sel=document.getElementById('insightWeekSelect');
+  sel.innerHTML='<option value="">Choose a week...</option>';
+  const currentW=getWeekNum();
+  for(let n=1;n<=currentW;n++){
+    const count=checkinCountForWeek(n);
+    if(count>0){
+      const opt=document.createElement('option');
+      opt.value=n;
+      opt.textContent=weekLabel(n)+' ('+count+' entries)';
+      sel.appendChild(opt);
+    }
+  }
+}
+window.saveApiKey=()=>{
+  const val=(document.getElementById('apiKeyInput')?.value||'').trim();
+  if(!val){showToast('Please enter an API key');return;}
+  localStorage.setItem('anthropic_api_key',val);
+  const saved=document.getElementById('apiKeySaved');
+  if(saved){saved.style.display='inline';setTimeout(()=>saved.style.display='none',2000);}
+  showToast('API key saved');
+};
+
+window.generateInsights=async()=>{
+  const wNum=parseInt(document.getElementById('insightWeekSelect').value);
+  if(!wNum){showToast('Please select a week first');return;}
+  const startDay=(wNum-1)*7+1,endDay=Math.min(wNum*7,90);
+  const weekEnts=[];
+  for(let i=startDay;i<=endDay;i++){
+    const d=dayToDate(i);
+    const e=entries.find(x=>x.date===d);
+    if(e)weekEnts.push(e);
+  }
+  if(!weekEnts.length){showToast('No entries found for this week');return;}
+  document.getElementById('insightResult').style.display='none';
+  document.getElementById('insightLoading').style.display='block';
+  document.getElementById('insightBtn').disabled=true;
+  const entryTexts=weekEnts.map(e=>e.article).join('\n\n---\n\n');
+  const prompt='Here are my daily journal entries for '+weekLabel(wNum)+':\n\n'+entryTexts+'\n\nPlease give me exactly 3 insights from this week. For each insight: a short bold title (5 words max) and 2-3 sentences of warm, specific reflection.\n\nFormat as JSON array only, no other text:\n[{"title":"...","body":"..."},{"title":"...","body":"..."},{"title":"...","body":"..."}]\n\nFocus on: emotional patterns, growth moments, and one thing to carry forward next week.';
+  try{
+    const apiKey=(document.getElementById('apiKeyInput')?.value||localStorage.getItem('anthropic_api_key')||'').trim();
+    if(!apiKey){showToast('Please enter your Anthropic API key first');document.getElementById('insightLoading').style.display='none';document.getElementById('insightBtn').disabled=false;return;}
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await resp.json();
+    const raw=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const jsonMatch=raw.match(/\[[\s\S]*\]/);
+    if(!jsonMatch)throw new Error('No JSON');
+    const insights=JSON.parse(jsonMatch[0]);
+    const cards=document.getElementById('insightCards');cards.innerHTML='';
+    insights.slice(0,3).forEach((ins,i)=>{
+      const card=document.createElement('div');card.className='insight-card';
+      card.innerHTML='<div class="insight-num">'+(i+1)+'</div><div style="font-size:13px;font-weight:700;margin-bottom:6px">'+ins.title+'</div><div class="insight-text">'+ins.body+'</div>';
+      cards.appendChild(card);
+    });
+    lastInsightText=weekLabel(wNum)+' - AI Insights\n'+'='.repeat(44)+'\n\n'+
+      insights.slice(0,3).map((ins,i)=>(i+1)+'. '+ins.title+'\n'+ins.body).join('\n\n')+
+      '\n\n'+'Generated '+fmtLong(todayStr());
+    document.getElementById('insightResult').style.display='block';
+  }catch(err){showToast('Error - try again');console.error(err);}
+  finally{document.getElementById('insightLoading').style.display='none';document.getElementById('insightBtn').disabled=false;}
+};
+window.downloadInsights=()=>{
+  if(!lastInsightText)return;
+  const blob=new Blob([lastInsightText],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='insights-week-'+document.getElementById('insightWeekSelect').value+'.txt';
+  a.click();
+};
+
 
 window.resetStart=async()=>{
   if(confirm('Reset start date to today? Old entries are kept.')){

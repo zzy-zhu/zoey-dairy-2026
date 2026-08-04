@@ -20,11 +20,9 @@ const START = addDays(todayStr(), -113)
 const SAMPLE = [
   'Coffee on the balcony before anyone else is up.',
   'That the hard part was never the code — it was deciding what to build.',
-  'Finish the typography pass on the case study.',
-  'Send one message to someone whose work I admire.',
-  'Tired but in a good way. Steady.',
-  'The neighbour who waters my plants without being asked.',
-  'Someone who ships things she is proud of and sleeps well.',
+  'Set the body type once and leave it. Toward shipping the portfolio.',
+  'Tired but in a good way. Grateful for the neighbour who waters my plants.',
+  'Wrote until the page stopped arguing with me. Kept two sentences worth keeping.',
 ]
 
 const entries = Array.from({ length: 26 }, (_, i) => {

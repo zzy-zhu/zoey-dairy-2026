@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Sheet from './Sheet.jsx'
 import HabitPicker from './HabitPicker.jsx'
 import { useStore } from '../lib/store.jsx'
+import { resolveQuestions, sparkForDate } from '../lib/prompts.js'
 import { buildArticle } from '../lib/format.js'
 import { dayNumber, fmtLong, isValidDateStr, todayStr } from '../lib/dates.js'
 
@@ -17,9 +18,11 @@ export default function EntrySheet({ date, allowDateEdit = false, onClose }) {
   const existing = entryFor(date)
 
   const questions = useMemo(
-    () => (existing?.questionsSnapshot?.length ? existing.questionsSnapshot : meta.questions),
+    () => resolveQuestions(existing, meta.questions),
     [existing, meta.questions]
   )
+
+  const spark = sparkForDate(date)
   const habitDefs = meta.habits
 
   const [answers, setAnswers] = useState(() =>
@@ -175,6 +178,12 @@ export default function EntrySheet({ date, allowDateEdit = false, onClose }) {
 
         <div className="divider" />
 
+        <div className="spark-card">
+          <p className="eyebrow">Today's spark</p>
+          <p className="spark-line">{spark}</p>
+          <p className="tiny">Use it for the free write, or ignore it.</p>
+        </div>
+
         {questions.map((q, i) => (
           <div className="field" key={i}>
             <label className="field-label" htmlFor={`ans-${i}`}>
@@ -182,6 +191,7 @@ export default function EntrySheet({ date, allowDateEdit = false, onClose }) {
             </label>
             <textarea
               id={`ans-${i}`}
+              className={i === questions.length - 1 ? 'tall' : ''}
               value={answers[i] || ''}
               placeholder="Write as much or as little as you like…"
               onChange={(e) =>

@@ -9,6 +9,7 @@ import { MemoBoard, MemoComposer } from '../components/MemoBoard.jsx'
 import { buildArticle } from '../lib/format.js'
 import { goalAccent } from '../lib/story.js'
 import { streakStats } from '../lib/streak.js'
+import { resolveQuestions, sparkForDate } from '../lib/prompts.js'
 import {
   dayNumber,
   fmtLong,
@@ -264,7 +265,13 @@ export default function Today({ go }) {
 
         <div className="section-head">
           <h2 className="display">Today's prompts</h2>
+          <span className="tiny">{meta.questions.length} questions</span>
         </div>
+        <section className="card spark-card" style={{ marginBottom: '0.9rem' }}>
+          <p className="eyebrow">Today's spark</p>
+          <p className="spark-line">{sparkForDate(today)}</p>
+          <p className="tiny">A line to write from, if you want one. New one tomorrow.</p>
+        </section>
         <section className="card">
           {meta.questions.map((q, i) => (
             <div
@@ -450,8 +457,10 @@ function QuickHabits({
   }, [entry?.emotion, date])
 
   function persist(nextHabits, nextEmotion) {
-    const answers = questions.map((_, i) => entry?.answers?.[i] || '')
-    const qs = entry?.questionsSnapshot?.length ? entry.questionsSnapshot : questions
+    // Resolve against the entry itself so a day written under the old
+    // seven-prompt set keeps all of its answers.
+    const qs = resolveQuestions(entry, questions)
+    const answers = qs.map((_, i) => entry?.answers?.[i] || '')
     const wrote = answers.some((a) => a.trim())
     saveEntry(
       {

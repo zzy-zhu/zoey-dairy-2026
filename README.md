@@ -89,6 +89,21 @@ today doesn't break it, it just means today is still open, which is what the
 countdown is for. The 28-day ribbon on the dashboard shows the shape of the last
 month.
 
+## The daily prompts
+
+Five, deliberately overlapping as little as possible: what you're looking
+forward to, what yesterday taught you, the smallest real step and what it's
+toward, how you honestly are plus what's worth being grateful for, and a free
+write. Above them sits **today's spark** — one line from a rotating set to write
+from, stable through the day and different tomorrow.
+
+Editing prompts in Settings still works, and a set you've customised is never
+touched. If the stored prompts were still the original seven, they're migrated
+to these five once, on load. Entries written under the old set keep all seven
+answers: `lib/prompts.js` resolves an entry's prompts from its own
+`questionsSnapshot`, and falls back to the original seven when an entry holds
+more answers than there are current prompts, so nothing is truncated.
+
 ## Daily notes
 
 Alongside the prompts, each day takes short memos in a shape you choose —

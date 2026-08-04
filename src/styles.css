@@ -2178,3 +2178,21 @@ button.memo:hover {
   width: 118px;
   padding: 0.7rem 1.3rem 1rem;
 }
+
+/* A line to write from */
+.spark-card {
+  border-left: 3px solid var(--yellow);
+}
+.spark-line {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  line-height: 1.35;
+  margin: 0.35rem 0 0.35rem;
+}
+.sheet .spark-card {
+  padding: 0.85rem 1rem;
+  background: var(--yellow-soft);
+  border: 1px solid color-mix(in srgb, var(--yellow) 40%, transparent);
+  border-left: 3px solid var(--yellow);
+  border-radius: var(--radius-sm);
+}

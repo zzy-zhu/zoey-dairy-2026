@@ -19,16 +19,18 @@ import {
 } from 'firebase/firestore'
 import { auth, db, googleProvider } from '../firebase.js'
 import { todayStr } from './dates.js'
+import { LEGACY_QUESTIONS } from './prompts.js'
 
 export const DEFAULT_QUESTIONS = [
-  "What's one thing you're genuinely looking forward to today?",
-  'What did you learn yesterday — about yourself, your work, or the world?',
-  'What is one specific thing you want to move forward on in your learning today?',
-  "What's the smallest step you can take today toward your career goal?",
-  'How are you feeling right now? Any emotion worth noticing?',
-  "What's one thing you're grateful for, however small?",
-  'In 90 days, who do you want to have become?',
+  "What's one thing you're looking forward to today?",
+  'What did yesterday teach you?',
+  "What's the smallest real step you can take today — and what's it toward?",
+  "How are you, honestly? And what's worth being grateful for right now?",
+  'Free write. Start anywhere, and don\'t stop to fix it.',
 ]
+
+const sameList = (a = [], b = []) =>
+  a.length === b.length && a.every((x, i) => x === b[i])
 
 export const DEFAULT_WEEKLY_QUESTIONS = [
   'What were your 3 biggest wins this week?',
@@ -154,10 +156,16 @@ export function StoreProvider({ children }) {
         let nextMeta
         if (metaSnap.exists()) {
           const m = metaSnap.data()
+          // If the prompts were never customised, move them to the current
+          // default set. A hand-edited list is left exactly as it is.
+          const storedQuestions = m.questions?.length ? m.questions : DEFAULT_QUESTIONS
+          const questions = sameList(storedQuestions, LEGACY_QUESTIONS)
+            ? DEFAULT_QUESTIONS
+            : storedQuestions
           nextMeta = {
             startDate: m.startDate || todayStr(),
             checkins: m.checkins || {},
-            questions: m.questions?.length ? m.questions : DEFAULT_QUESTIONS,
+            questions,
             weeklyQuestions: m.weeklyQuestions?.length
               ? m.weeklyQuestions
               : DEFAULT_WEEKLY_QUESTIONS,
@@ -166,6 +174,14 @@ export function StoreProvider({ children }) {
         } else {
           nextMeta = { ...EMPTY_META, startDate: todayStr() }
           await setDoc(doc(db, 'users', uid, 'data', 'meta'), nextMeta)
+        }
+        // Persist the prompt migration so it only happens once.
+        if (metaSnap.exists() && !sameList(nextMeta.questions, metaSnap.data().questions || [])) {
+          await setDoc(
+            doc(db, 'users', uid, 'data', 'meta'),
+            { questions: nextMeta.questions },
+            { merge: true }
+          )
         }
 
         const [entrySnap, weeklySnap, goalSnap, daySnap, inspoSnap, storySnap, memoSnap] =

@@ -56,6 +56,7 @@ are exactly the shapes the original app wrote:
 | `days/{YYYY-MM-DD}` | `priorities[]` (each with an optional `goalId`) — kept separate so editing a to-do never touches the journal entry |
 | `inspo/{id}` | `kind` (`note` \| `page`), `text` or the page fields, `goalId`, `date`, `createdAt` |
 | `stories/{weekKey}` | The closing card Claude wrote for a week's recap, cached so replays are free |
+| `memos/{id}` | A shaped note: `text`, `shape`, `kind` (`action` \| `emotion` \| `day`), `date`, `createdAt` |
 
 Two things worth knowing:
 
@@ -70,6 +71,36 @@ Settings has a **Download archive** button that dumps everything to one JSON
 file, and the original app is still served at
 [`/legacy.html`](public/legacy.html) (source also kept in
 [`legacy/`](legacy/)) if you ever want to look at it.
+
+## zOS
+
+The first tab is the console. One screen for "where am I?": today's state with a
+live countdown to midnight, the streak, this week's notes and their pattern,
+today's priorities, what's counting down toward a goal date, and the most recent
+logs. It's the default landing view — deep links like `#today` or `#goals` still
+work.
+
+## The chain (streaks)
+
+`lib/streak.js` computes everything from the check-in map: current run, longest
+run ever, days total, and how much of the elapsed time you've kept up. A streak
+counts as **alive** through today until midnight — writing yesterday and not yet
+today doesn't break it, it just means today is still open, which is what the
+countdown is for. The 28-day ribbon on the dashboard shows the shape of the last
+month.
+
+## Daily notes
+
+Alongside the prompts, each day takes short memos in a shape you choose —
+post-it, torn, taped, speech bubble, blob, arch, coin, ticket, starburst,
+scallop, banner, hex. The shape is decoration; the **kind** carries the meaning:
+*action* (something you did), *emotion* (something you felt), or *the day*
+(what it was like). Each is stamped with its time.
+
+The mix is the point. Once a week's notes exist, the recap gets two extra
+slides — the notes themselves, and the pattern ("an even split between doing and
+feeling this week") — and the same block is written into the saved weekly
+summary, so the pattern is part of the record rather than a separate view.
 
 ## Priorities, goals and habits
 
@@ -124,9 +155,11 @@ src/
     format.js        renders entries to the plain-text `article` field
     story.js         week stats -> recap slides; per-goal accent colours
     insights.js      Claude calls (week read, recap card, inspiration page)
-  components/        Sheet, EntrySheet, ReadSheet, Story, WeekStory,
-                     HabitPicker, Sparks, InspoSheet, SignIn
-  views/             Today, Goals, Weekly, Journal, Insights, Settings
+  components/        Sheet, EntrySheet, ReadSheet, Story, WeekStory, Countdown,
+                     Memo, MemoBoard, HabitPicker, Sparks, InspoSheet, SignIn
+    memos.js         memo shapes, kinds, and the weekly pattern
+    streak.js        the chain: current/longest/consistency, midnight countdown
+  views/             ZOS, Today, Goals, Weekly, Journal, Insights, Settings
   preview.jsx        dev-only harness (see below)
 ```
 
@@ -135,4 +168,4 @@ handy for design work, and the only way to see a populated recap without a
 week of real entries. It's excluded from the production build; open
 `/zoey-dairy-2026/preview.html?view=story&theme=nuit` while `npm run dev`
 is running (`view` also takes `today`, `goals`, `weekly`, `journal`,
-`insights`, `settings`; `theme` takes `jour` or `nuit`).
+`zos`, `insights`, `settings`; `theme` takes `jour` or `nuit`).

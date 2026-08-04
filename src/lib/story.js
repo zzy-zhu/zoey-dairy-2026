@@ -1,4 +1,6 @@
-import { currentStreak, dayToDate, fmtDayMonth, parseLocalDate, weekLabel } from './dates.js'
+import { dayToDate, fmtDayMonth, parseLocalDate, weekLabel } from './dates.js'
+import { streakStats } from './streak.js'
+import { KINDS, memoPattern, patternHeadline, patternSentence } from './memos.js'
 
 /**
  * Stable per-goal accent so a goal reads the same colour everywhere. Muted
@@ -21,7 +23,7 @@ export function goalAccent(id = '') {
 const wordCount = (s) => (s ? s.trim().split(/\s+/).filter(Boolean).length : 0)
 
 /** Everything measurable about one week, pulled from what's already loaded. */
-export function weekStats({ weekNum, startDate, entries, days, goals, habitDefs, checkins }) {
+export function weekStats({ weekNum, startDate, entries, days, goals, habitDefs, checkins, memos = [] }) {
   const dates = []
   for (let i = (weekNum - 1) * 7 + 1; i <= weekNum * 7; i++) {
     dates.push(dayToDate(startDate, i))
@@ -81,6 +83,10 @@ export function weekStats({ weekNum, startDate, entries, days, goals, habitDefs,
     })
   })
 
+  // Notes pinned during the week, and the mix of what they were about.
+  const weekMemos = memos.filter((m) => dates.includes(m.date))
+  const pattern = memoPattern(weekMemos)
+
   const lastDate = dates[dates.length - 1]
   const busiest = weekEntries
     .map((e) => ({
@@ -104,7 +110,9 @@ export function weekStats({ weekNum, startDate, entries, days, goals, habitDefs,
     goalWork,
     quote,
     busiest,
-    streak: currentStreak(checkins),
+    memos: weekMemos,
+    pattern,
+    streak: streakStats(checkins).current,
     range: `${fmtDayMonth(dates[0])} – ${fmtDayMonth(lastDate)}`,
   }
 }
@@ -217,6 +225,31 @@ export function buildStory(stats, note) {
         accent: goalAccent(t.goal.id),
       })),
     })
+  }
+
+  if (stats.memos.length) {
+    slides.push({
+      kind: 'memos',
+      tint: 'jade',
+      eyebrow: 'Pinned this week',
+      headline: `${stats.memos.length} ${stats.memos.length === 1 ? 'note' : 'notes'}`,
+      memos: stats.memos.slice(0, 6),
+    })
+
+    if (stats.memos.length > 1) {
+      slides.push({
+        kind: 'pattern',
+        tint: 'gold',
+        eyebrow: 'The pattern',
+        headline: patternHeadline(stats.pattern),
+        sub: patternSentence(stats.pattern),
+        items: KINDS.filter((k) => stats.pattern.counts[k.id]).map((k) => ({
+          label: k.label,
+          value: `${stats.pattern.counts[k.id]}`,
+          bar: stats.pattern.counts[k.id] / stats.pattern.total,
+        })),
+      })
+    }
   }
 
   if (stats.quote) {

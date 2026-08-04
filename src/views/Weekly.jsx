@@ -2,8 +2,10 @@ import { useState } from 'react'
 import Sheet from '../components/Sheet.jsx'
 import ReadSheet from '../components/ReadSheet.jsx'
 import WeekStory from '../components/WeekStory.jsx'
+import { MemoBoard } from '../components/MemoBoard.jsx'
 import { useStore } from '../lib/store.jsx'
 import { buildWeeklyArticle, preview } from '../lib/format.js'
+import { memosToText } from '../lib/memos.js'
 import {
   chapterOfWeek,
   dayToDate,
@@ -15,7 +17,7 @@ import {
 } from '../lib/dates.js'
 
 export default function Weekly() {
-  const { meta, weeklyEntries, weeklyFor, saveWeekly, showToast } = useStore()
+  const { meta, weeklyEntries, weeklyFor, saveWeekly, memos, showToast } = useStore()
   const currentWeek = weekNumber(meta.startDate, todayStr())
   const [writing, setWriting] = useState(null) // week number
   const [reading, setReading] = useState(null) // weekly entry
@@ -24,6 +26,15 @@ export default function Weekly() {
 
   const thisWeek = weeklyFor(weekKey(meta.startDate, currentWeek))
   const maxChapter = chapterOfWeek(currentWeek)
+
+  /** Notes pinned inside a given week — the raw material for its pattern. */
+  function memosInWeek(n) {
+    const dates = []
+    for (let i = (n - 1) * 7 + 1; i <= n * 7; i++) {
+      dates.push(dayToDate(meta.startDate, i))
+    }
+    return memos.filter((m) => dates.includes(m.date))
+  }
 
   function checkinsInWeek(n) {
     let count = 0
@@ -59,6 +70,21 @@ export default function Weekly() {
               </button>
             )}
           </div>
+        </section>
+
+        <section className="card">
+          <div className="row-between" style={{ marginBottom: '0.6rem' }}>
+            <h2 className="display" style={{ fontSize: '1.35rem' }}>
+              This week's notes
+            </h2>
+            <span className="tiny">{memosInWeek(currentWeek).length} pinned</span>
+          </div>
+          <MemoBoard
+            memos={memosInWeek(currentWeek)}
+            small
+            showPattern
+            empty="Nothing pinned this week yet — notes live in Today."
+          />
         </section>
 
         <div className="section-head">
@@ -163,6 +189,7 @@ export default function Weekly() {
           weekNum={writing}
           startDate={meta.startDate}
           questions={meta.weeklyQuestions}
+          memos={memosInWeek(writing)}
           existing={weeklyFor(weekKey(meta.startDate, writing))}
           onClose={() => setWriting(null)}
           onSave={async (entry) => {
@@ -194,7 +221,7 @@ export default function Weekly() {
   )
 }
 
-function WeeklySheet({ weekNum, startDate, questions, existing, onClose, onSave }) {
+function WeeklySheet({ weekNum, startDate, questions, memos, existing, onClose, onSave }) {
   const qs = existing?.questionsSnapshot?.length ? existing.questionsSnapshot : questions
   const [answers, setAnswers] = useState(() => qs.map((_, i) => existing?.answers?.[i] || ''))
   const [saving, setSaving] = useState(false)
@@ -202,12 +229,16 @@ function WeeklySheet({ weekNum, startDate, questions, existing, onClose, onSave 
   async function submit() {
     setSaving(true)
     const label = weekLabel(startDate, weekNum)
+    // The week's pinned notes are folded into the summary itself, so the
+    // pattern is part of the record rather than a separate view.
+    const notes = memosToText(memos)
     await onSave({
       weekKey: weekKey(startDate, weekNum),
       weekNum,
       answers,
       questionsSnapshot: qs,
-      article: buildWeeklyArticle({ weekNum, label, questions: qs, answers }),
+      memoCount: memos.length,
+      article: buildWeeklyArticle({ weekNum, label, questions: qs, answers }) + (notes ? '\n' + notes : ''),
     })
     setSaving(false)
   }
@@ -229,6 +260,15 @@ function WeeklySheet({ weekNum, startDate, questions, existing, onClose, onSave 
       }
     >
       <div className="stack">
+        {memos.length > 0 && (
+          <section className="card card-tint-gold">
+            <p className="eyebrow" style={{ marginBottom: '0.5rem' }}>
+              Your notes this week — saved with this summary
+            </p>
+            <MemoBoard memos={memos} small showPattern />
+          </section>
+        )}
+
         {qs.map((q, i) => (
           <div className="field" key={i}>
             <label className="field-label" htmlFor={`wans-${i}`}>

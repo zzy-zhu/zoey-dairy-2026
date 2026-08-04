@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import Memo from './Memo.jsx'
 
 const SLIDE_MS = 6500
 
@@ -170,6 +171,43 @@ function Slide({ slide, onGenerateNote, generating, onClose }) {
                   <i style={{ width: `${Math.min(100, it.bar * 100)}%` }} />
                 </span>
               )}
+            </div>
+          ))}
+        </div>
+      </>
+    )
+  }
+
+  if (slide.kind === 'memos') {
+    return (
+      <>
+        {eyebrow}
+        <h2 className="story-headline">{slide.headline}</h2>
+        <div className="story-memos">
+          {slide.memos.map((m) => (
+            <Memo key={m.id} memo={m} small />
+          ))}
+        </div>
+      </>
+    )
+  }
+
+  if (slide.kind === 'pattern') {
+    return (
+      <>
+        {eyebrow}
+        <h2 className="story-headline">{slide.headline}</h2>
+        {slide.sub && <p className="story-sub big">{slide.sub}</p>}
+        <div className="story-list">
+          {slide.items.map((it, n) => (
+            <div className="story-item" key={n}>
+              <span className="story-item-top">
+                <span>{it.label}</span>
+                <strong>{it.value}</strong>
+              </span>
+              <span className="story-bar-track">
+                <i style={{ width: `${Math.min(100, it.bar * 100)}%` }} />
+              </span>
             </div>
           ))}
         </div>

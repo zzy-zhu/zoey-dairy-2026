@@ -83,6 +83,7 @@ export function StoreProvider({ children }) {
   const [days, setDays] = useState({}) // date -> { priorities: [...] }
   const [inspo, setInspo] = useState([])
   const [stories, setStories] = useState({}) // weekKey -> saved story note
+  const [memos, setMemos] = useState([])
 
   const showToast = useCallback((message) => {
     setToast({ message, id: newId() })
@@ -141,6 +142,7 @@ export function StoreProvider({ children }) {
       setDays({})
       setInspo([])
       setStories({})
+      setMemos([])
       return
     }
     let cancelled = false
@@ -166,7 +168,7 @@ export function StoreProvider({ children }) {
           await setDoc(doc(db, 'users', uid, 'data', 'meta'), nextMeta)
         }
 
-        const [entrySnap, weeklySnap, goalSnap, daySnap, inspoSnap, storySnap] =
+        const [entrySnap, weeklySnap, goalSnap, daySnap, inspoSnap, storySnap, memoSnap] =
           await Promise.all([
             getDocs(query(collection(db, 'users', uid, 'entries'), orderBy('date', 'desc'))),
             getDocs(
@@ -180,6 +182,9 @@ export function StoreProvider({ children }) {
               query(collection(db, 'users', uid, 'inspo'), orderBy('createdAt', 'desc'), limit(60))
             ),
             getDocs(collection(db, 'users', uid, 'stories')),
+            getDocs(
+              query(collection(db, 'users', uid, 'memos'), orderBy('createdAt', 'desc'), limit(400))
+            ),
           ])
 
         if (cancelled) return
@@ -202,6 +207,7 @@ export function StoreProvider({ children }) {
           storyMap[d.id] = d.data()
         })
         setStories(storyMap)
+        setMemos(memoSnap.docs.map((d) => ({ id: d.id, ...d.data() })))
       } catch (e) {
         if (!cancelled) setError(e.message)
       } finally {
@@ -407,6 +413,38 @@ export function StoreProvider({ children }) {
     [uid, write]
   )
 
+  /** Pins a shaped memo to a day. */
+  const saveMemo = useCallback(
+    async (memo) => {
+      if (!uid) return false
+      const record = {
+        ...memo,
+        id: memo.id || newId(),
+        createdAt: memo.createdAt || new Date().toISOString(),
+      }
+      setMemos((prev) =>
+        [record, ...prev.filter((m) => m.id !== record.id)].sort((a, b) =>
+          (b.createdAt || '').localeCompare(a.createdAt || '')
+        )
+      )
+      const ok = await write(
+        () => setDoc(doc(db, 'users', uid, 'memos', record.id), record),
+        "Couldn't pin that note"
+      )
+      return ok && record
+    },
+    [uid, write]
+  )
+
+  const deleteMemo = useCallback(
+    async (id) => {
+      if (!uid) return false
+      setMemos((prev) => prev.filter((m) => m.id !== id))
+      return write(() => deleteDoc(doc(db, 'users', uid, 'memos', id)), "Couldn't delete that note")
+    },
+    [uid, write]
+  )
+
   /** Everything in one JSON blob — the download-your-archive button. */
   const exportAll = useCallback(() => {
     const payload = {
@@ -419,6 +457,7 @@ export function StoreProvider({ children }) {
       days,
       inspo,
       stories,
+      memos,
     }
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
@@ -427,7 +466,7 @@ export function StoreProvider({ children }) {
     a.click()
     URL.revokeObjectURL(a.href)
     showToast('Archive downloaded')
-  }, [user, meta, entries, weeklyEntries, goals, days, inspo, stories, showToast])
+  }, [user, meta, entries, weeklyEntries, goals, days, inspo, stories, memos, showToast])
 
   const value = useMemo(
     () => ({
@@ -447,6 +486,8 @@ export function StoreProvider({ children }) {
       days,
       inspo,
       stories,
+      memos,
+      memosFor: (date) => memos.filter((m) => m.date === date),
       entryFor: (date) => entries.find((e) => e.date === date) || null,
       weeklyFor: (weekKey) => weeklyEntries.find((w) => w.weekKey === weekKey) || null,
       prioritiesFor: (date) => days[date]?.priorities || [],
@@ -461,6 +502,8 @@ export function StoreProvider({ children }) {
       saveInspo,
       deleteInspo,
       saveStoryNote,
+      saveMemo,
+      deleteMemo,
       exportAll,
       newId,
     }),
@@ -481,6 +524,7 @@ export function StoreProvider({ children }) {
       days,
       inspo,
       stories,
+      memos,
       patchMeta,
       saveEntry,
       moveEntry,
@@ -491,6 +535,8 @@ export function StoreProvider({ children }) {
       saveInspo,
       deleteInspo,
       saveStoryNote,
+      saveMemo,
+      deleteMemo,
       exportAll,
     ]
   )

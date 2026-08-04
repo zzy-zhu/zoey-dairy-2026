@@ -6,7 +6,7 @@ import { weekKey } from '../lib/dates.js'
 
 /** Wires a week's data into the story player and caches Claude's closing note. */
 export default function WeekStory({ weekNum, onClose }) {
-  const { meta, entries, days, goals, stories, saveStoryNote, showToast } = useStore()
+  const { meta, entries, days, goals, memos, stories, saveStoryNote, showToast } = useStore()
   const [generating, setGenerating] = useState(false)
 
   const key = weekKey(meta.startDate, weekNum)
@@ -22,8 +22,9 @@ export default function WeekStory({ weekNum, onClose }) {
         goals,
         habitDefs: meta.habits,
         checkins: meta.checkins,
+        memos,
       }),
-    [weekNum, meta, entries, days, goals]
+    [weekNum, meta, entries, days, goals, memos]
   )
 
   const slides = useMemo(() => buildStory(stats, note), [stats, note])
@@ -43,6 +44,9 @@ export default function WeekStory({ weekNum, onClose }) {
           ? `most worked-on goal: ${stats.goalWork[0].goal.title}`
           : null,
         stats.streak > 1 ? `${stats.streak}-day streak` : null,
+        stats.memos.length
+          ? `notes pinned: ${stats.memos.map((m) => `[${m.kind}] ${m.text}`).join(' | ')}`
+          : null,
       ]
         .filter(Boolean)
         .join('\n')

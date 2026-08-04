@@ -6,6 +6,7 @@ import { StoreContext, DEFAULT_QUESTIONS, DEFAULT_WEEKLY_QUESTIONS, DEFAULT_HABI
 import { buildArticle, buildWeeklyArticle } from './lib/format.js'
 import { addDays, todayStr, weekKey, weekLabel, weekNumber } from './lib/dates.js'
 import WeekStory from './components/WeekStory.jsx'
+import ZOS from './views/ZOS.jsx'
 import Today from './views/Today.jsx'
 import Goals from './views/Goals.jsx'
 import Weekly from './views/Weekly.jsx'
@@ -156,6 +157,27 @@ const inspo = [
   },
 ]
 
+const MEMO_SEED = [
+  { text: 'Sent the email I had been sitting on for a week.', shape: 'taped', kind: 'action' },
+  { text: 'Nervous in the morning, fine by lunch. It passes faster than I expect.', shape: 'blob', kind: 'emotion' },
+  { text: 'Rain all afternoon. Wrote with the window open.', shape: 'wave', kind: 'day' },
+  { text: 'Cut the third project. Two is enough.', shape: 'torn', kind: 'action' },
+  { text: 'Proud, quietly.', shape: 'circle', kind: 'emotion' },
+  { text: 'Long day but a good one', shape: 'burst', kind: 'day' },
+  { text: 'Ran 3k without stopping to check the time.', shape: 'ticket', kind: 'action' },
+  { text: 'Mei said the type looked confident. I believed her.', shape: 'bubble', kind: 'emotion' },
+]
+
+const memos = MEMO_SEED.map((m, i) => {
+  const date = addDays(todayStr(), -(i % 6))
+  return {
+    ...m,
+    id: `m${i}`,
+    date,
+    createdAt: new Date(`${date}T${String(9 + (i % 8)).padStart(2, '0')}:${i % 2 ? '41' : '12'}:00`).toISOString(),
+  }
+})
+
 const value = {
   user: { displayName: 'Zoey Zhu', email: 'zzhu@ideo.com', photoURL: null },
   authReady: true,
@@ -179,9 +201,11 @@ const value = {
   days,
   inspo,
   stories: {},
+  memos,
   entryFor: (d) => entries.find((e) => e.date === d) || null,
   weeklyFor: (k) => weeklyEntries.find((w) => w.weekKey === k) || null,
   prioritiesFor: (d) => days[d]?.priorities || [],
+  memosFor: (d) => memos.filter((m) => m.date === d),
   goalFor: (id) => goals.find((g) => g.id === id) || null,
   patchMeta: async () => true,
   saveEntry: async () => true,
@@ -193,11 +217,13 @@ const value = {
   saveInspo: async (d) => ({ ...d, id: 'new' }),
   deleteInspo: async () => true,
   saveStoryNote: async () => true,
+  saveMemo: async (m) => ({ ...m, id: 'new', createdAt: new Date().toISOString() }),
+  deleteMemo: async () => true,
   exportAll: () => {},
   newId: () => `id-${Math.random().toString(36).slice(2)}`,
 }
 
-const VIEWS = ['today', 'goals', 'weekly', 'journal', 'insights', 'settings', 'story']
+const VIEWS = ['zos', 'today', 'goals', 'weekly', 'journal', 'insights', 'settings', 'story']
 
 function Harness() {
   const initial = new URLSearchParams(location.search).get('view') || 'today'
@@ -228,6 +254,7 @@ function Harness() {
           {view === 'story' && (
             <WeekStory weekNum={weekNumber(START, todayStr())} onClose={() => setView('today')} />
           )}
+          {view === 'zos' && <ZOS go={setView} />}
           {view === 'today' && <Today go={setView} />}
           {view === 'goals' && <Goals />}
           {view === 'weekly' && <Weekly />}

@@ -111,18 +111,6 @@ export function weeksInChapter(chapter) {
   return Array.from({ length: 13 }, (_, i) => first + i)
 }
 
-/** Consecutive check-ins ending today (or yesterday, if today isn't written). */
-export function currentStreak(checkins) {
-  const today = todayStr()
-  let cursor = checkins[today] ? today : addDays(today, -1)
-  let n = 0
-  while (checkins[cursor]) {
-    n++
-    cursor = addDays(cursor, -1)
-  }
-  return n
-}
-
 /** Calendar month grid (weeks starting Sunday) for a given year/month. */
 export function monthGrid(year, month) {
   const first = new Date(year, month, 1)

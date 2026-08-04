@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { StoreProvider, useStore } from './lib/store.jsx'
 import SignIn from './components/SignIn.jsx'
+import ZOS from './views/ZOS.jsx'
 import Today from './views/Today.jsx'
 import Goals from './views/Goals.jsx'
 import Weekly from './views/Weekly.jsx'
@@ -9,11 +10,12 @@ import Insights from './views/Insights.jsx'
 import Settings from './views/Settings.jsx'
 
 const TABS = [
+  { id: 'zos', label: 'zOS', icon: '◧' },
   { id: 'today', label: 'Today', icon: '☀' },
   { id: 'goals', label: 'Goals', icon: '◎' },
-  { id: 'weekly', label: 'Weekly', icon: '❧' },
-  { id: 'journal', label: 'Journal', icon: '❏' },
-  { id: 'insights', label: 'Reflect', icon: '✦' },
+  { id: 'weekly', label: 'Week', icon: '❧' },
+  { id: 'journal', label: 'Logs', icon: '❏' },
+  { id: 'insights', label: 'Notes', icon: '✦' },
 ]
 
 const ALL_TABS = [...TABS.map((t) => t.id), 'settings']
@@ -111,6 +113,7 @@ function Chrome() {
           <p className="empty">Loading everything you've written…</p>
         ) : (
           <main>
+            {tab === 'zos' && <ZOS go={setTab} />}
             {tab === 'today' && <Today go={setTab} />}
             {tab === 'goals' && <Goals />}
             {tab === 'weekly' && <Weekly />}
@@ -151,7 +154,7 @@ function useTheme() {
 function useTab() {
   const [tab, setTab] = useState(() => {
     const fromHash = window.location.hash.replace('#', '')
-    return ALL_TABS.includes(fromHash) ? fromHash : 'today'
+    return ALL_TABS.includes(fromHash) ? fromHash : 'zos'
   })
 
   useEffect(() => {

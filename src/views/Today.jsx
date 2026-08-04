@@ -5,10 +5,11 @@ import HabitPicker from '../components/HabitPicker.jsx'
 import InspoSheet from '../components/InspoSheet.jsx'
 import WeekStory from '../components/WeekStory.jsx'
 import { SparkCapture, SparkRow } from '../components/Sparks.jsx'
+import { MemoBoard, MemoComposer } from '../components/MemoBoard.jsx'
 import { buildArticle } from '../lib/format.js'
 import { goalAccent } from '../lib/story.js'
+import { streakStats } from '../lib/streak.js'
 import {
-  currentStreak,
   dayNumber,
   fmtLong,
   greeting,
@@ -26,6 +27,8 @@ export default function Today({ go }) {
     goals,
     entries,
     inspo,
+    memosFor,
+    deleteMemo,
     entryFor,
     weeklyFor,
     prioritiesFor,
@@ -46,7 +49,7 @@ export default function Today({ go }) {
   const [sparking, setSparking] = useState(false)
 
   const dayN = dayNumber(meta.startDate, today)
-  const streak = currentStreak(meta.checkins)
+  const streak = streakStats(meta.checkins, today).current
   const written = !!meta.checkins[today]
 
   const weekN = weekNumber(meta.startDate, today)
@@ -56,6 +59,7 @@ export default function Today({ go }) {
   const firstName = (user?.displayName || '').split(' ')[0]
   const activeGoals = goals.filter((g) => !g.archived && !g.doneAt)
   const todaysSparks = inspo.filter((d) => d.date === today)
+  const todaysMemos = memosFor(today)
 
   async function spark() {
     setSparking(true)
@@ -161,6 +165,23 @@ export default function Today({ go }) {
           showToast={showToast}
           newId={newId}
         />
+
+        <section className="card">
+          <div className="row-between" style={{ marginBottom: '0.5rem' }}>
+            <h2 className="display" style={{ fontSize: '1.35rem' }}>
+              Today's notes
+            </h2>
+            <span className="tiny">{todaysMemos.length} pinned</span>
+          </div>
+          <p className="tiny" style={{ marginBottom: '0.7rem' }}>
+            Quick memos in whatever shape suits them — what you did, how you felt, what the day
+            was like. The mix becomes this week's pattern.
+          </p>
+          <MemoBoard memos={todaysMemos} onDelete={deleteMemo} />
+          <div style={{ marginTop: todaysMemos.length ? '0.7rem' : 0 }}>
+            <MemoComposer date={today} />
+          </div>
+        </section>
 
         <section className="card">
           <div className="row-between" style={{ marginBottom: '0.5rem' }}>

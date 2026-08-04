@@ -3,8 +3,8 @@ import ReadSheet from '../components/ReadSheet.jsx'
 import EntrySheet from '../components/EntrySheet.jsx'
 import { useStore } from '../lib/store.jsx'
 import { preview } from '../lib/format.js'
+import { streakStats } from '../lib/streak.js'
 import {
-  currentStreak,
   dayNumber,
   fmtLong,
   fmtShort,
@@ -27,7 +27,7 @@ export default function Journal() {
   const [q, setQ] = useState('')
 
   const totalWritten = Object.keys(meta.checkins).length
-  const streak = currentStreak(meta.checkins)
+  const streak = streakStats(meta.checkins, today).current
   const words = useMemo(
     () =>
       entries.reduce(

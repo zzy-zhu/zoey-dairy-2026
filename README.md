@@ -80,6 +80,13 @@ today's priorities, what's counting down toward a goal date, and the most recent
 logs. It's the default landing view — deep links like `#today` or `#goals` still
 work.
 
+It's the one view that takes the whole page: the shell widens to 1240px on
+`#zos` and the panels sit in a 2:1 grid — the chain and the week's notes in the
+wide column, priorities, goal countdowns and the week's state in the narrow one,
+with the status card and the recent logs spanning both. Below 940px it collapses
+to a single column, panels first and the log list last. Every other view stays a
+740px reading column.
+
 ## The chain (streaks)
 
 `lib/streak.js` computes everything from the check-in map: current run, longest

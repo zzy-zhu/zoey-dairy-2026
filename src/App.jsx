@@ -55,7 +55,7 @@ function Chrome() {
 
   return (
     <>
-      <div className="shell">
+      <div className={`shell${tab === 'zos' ? ' shell-wide' : ''}`}>
         <header className="masthead">
           <div>
             <p className="eyebrow">Zoey's Diary</p>

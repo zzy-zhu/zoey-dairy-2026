@@ -3,8 +3,11 @@ import { msUntilMidnight, splitDuration } from '../lib/streak.js'
 
 const pad = (n) => String(n).padStart(2, '0')
 
-/** Ticking time left to log today. Stops at 00:00:00 rather than going negative. */
-export default function Countdown({ label = 'Time left to log today' }) {
+/**
+ * Ticking time left in the day. `calm` drops the urgency colour for when
+ * today's already written and the clock is just information.
+ */
+export default function Countdown({ label = 'Time left to log today', calm = false }) {
   const [left, setLeft] = useState(() => msUntilMidnight())
 
   useEffect(() => {
@@ -13,7 +16,7 @@ export default function Countdown({ label = 'Time left to log today' }) {
   }, [])
 
   const { hours, minutes, seconds } = splitDuration(left)
-  const urgent = hours < 2
+  const urgent = !calm && hours < 2
 
   return (
     <div className="countdown">

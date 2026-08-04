@@ -90,9 +90,17 @@ export default function ZOS({ go }) {
               </button>
             </div>
           </div>
-          {!streak.todayDone && <Countdown />}
+          <Countdown
+            label={streak.todayDone ? 'Day ends in' : 'Time left to log today'}
+            calm={streak.todayDone}
+          />
         </section>
 
+      </div>
+
+      <div className="os-grid">
+        {/* ── Wide column ───────────────────────────────────────────────── */}
+        <div className="stack">
         {/* Streak */}
         <section className="card">
           <div className="row-between" style={{ marginBottom: '0.7rem' }}>
@@ -139,6 +147,33 @@ export default function ZOS({ go }) {
           </p>
         </section>
 
+        {/* Memo pattern */}
+        <section className="card">
+          <div className="row-between" style={{ marginBottom: '0.6rem' }}>
+            <h2 className="display" style={{ fontSize: '1.35rem' }}>
+              This week's notes
+            </h2>
+            <span className="tiny">{weekMemos.length} pinned</span>
+          </div>
+          <MemoBoard
+            memos={weekMemos.slice(0, 6)}
+            small
+            showPattern
+            empty="No notes pinned this week yet."
+          />
+          <button
+            className="btn btn-ghost btn-sm"
+            style={{ paddingLeft: 0, marginTop: '0.5rem' }}
+            onClick={() => go('today')}
+          >
+            Pin one in Today →
+          </button>
+        </section>
+
+        </div>
+
+        {/* ── Narrow column ─────────────────────────────────────────────── */}
+        <div className="stack">
         {/* Today's priorities at a glance */}
         {priorities.length > 0 && (
           <section className="card">
@@ -171,29 +206,6 @@ export default function ZOS({ go }) {
             </button>
           </section>
         )}
-
-        {/* Memo pattern */}
-        <section className="card">
-          <div className="row-between" style={{ marginBottom: '0.6rem' }}>
-            <h2 className="display" style={{ fontSize: '1.35rem' }}>
-              This week's notes
-            </h2>
-            <span className="tiny">{weekMemos.length} pinned</span>
-          </div>
-          <MemoBoard
-            memos={weekMemos.slice(0, 6)}
-            small
-            showPattern
-            empty="No notes pinned this week yet."
-          />
-          <button
-            className="btn btn-ghost btn-sm"
-            style={{ paddingLeft: 0, marginTop: '0.5rem' }}
-            onClick={() => go('today')}
-          >
-            Pin one in Today →
-          </button>
-        </section>
 
         {/* Countdowns to goal dates */}
         {deadlines.length > 0 && (
@@ -230,6 +242,10 @@ export default function ZOS({ go }) {
           </div>
         </section>
 
+        </div>
+      </div>
+
+      <div className="stack">
         {/* Recent logs */}
         <div className="section-head">
           <h2 className="display">Recent logs</h2>

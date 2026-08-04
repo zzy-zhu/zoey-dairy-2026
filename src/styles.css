@@ -2196,3 +2196,40 @@ button.memo:hover {
   border-left: 3px solid var(--yellow);
   border-radius: var(--radius-sm);
 }
+
+/* The dashboard takes the whole page; everything else stays a reading column. */
+@media (min-width: 780px) {
+  .shell-wide {
+    max-width: 1240px;
+  }
+}
+
+/* Two panels wide, one narrow — the visual panels get the room. */
+.os-grid {
+  display: grid;
+  gap: 0.9rem;
+  align-items: start;
+}
+
+@media (min-width: 940px) {
+  .os-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}
+
+/* With the page this wide, the status card can breathe. */
+@media (min-width: 940px) {
+  .shell-wide .os-status {
+    padding: 1.5rem 1.6rem;
+  }
+  .shell-wide .os-metrics {
+    gap: 0.9rem;
+  }
+  .shell-wide .os-metric {
+    font-size: 2.4rem;
+  }
+  .shell-wide .ribbon {
+    grid-template-columns: repeat(28, minmax(0, 1fr));
+    gap: 4px;
+  }
+}

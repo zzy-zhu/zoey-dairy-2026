@@ -235,7 +235,7 @@ function Harness() {
     <>
       <div className="paper-wash" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
-      <div className="shell">
+      <div className={`shell${view === 'zos' ? ' shell-wide' : ''}`}>
         <header className="masthead">
           <p className="eyebrow">Zoey's Diary</p>
           <div className="row" style={{ gap: '0.55rem', flexWrap: 'nowrap' }}>

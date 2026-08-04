@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Sheet from './Sheet.jsx'
+import HabitPicker from './HabitPicker.jsx'
 import { useStore } from '../lib/store.jsx'
 import { buildArticle } from '../lib/format.js'
 import { dayNumber, fmtLong, isValidDateStr, todayStr } from '../lib/dates.js'
@@ -12,7 +13,7 @@ const TIMER_SECONDS = 10 * 60
  * shuffle the answers under a newer set of questions.
  */
 export default function EntrySheet({ date, allowDateEdit = false, onClose }) {
-  const { meta, entryFor, saveEntry, moveEntry, showToast } = useStore()
+  const { meta, entryFor, saveEntry, moveEntry, patchMeta, showToast, newId } = useStore()
   const existing = entryFor(date)
 
   const questions = useMemo(
@@ -141,19 +142,20 @@ export default function EntrySheet({ date, allowDateEdit = false, onClose }) {
           <div className="eyebrow" style={{ marginBottom: '0.5rem' }}>
             Habits
           </div>
-          <div className="row">
-            {habitDefs.map((h) => (
-              <button
-                key={h.id}
-                type="button"
-                className={`chip${habits[h.id] ? ' on' : ''}`}
-                onClick={() => setHabits((prev) => ({ ...prev, [h.id]: !prev[h.id] }))}
-              >
-                <span style={{ fontSize: '1rem' }}>{h.icon}</span>
-                {h.label}
-              </button>
-            ))}
-          </div>
+          <HabitPicker
+            habitDefs={habitDefs}
+            values={habits}
+            onToggle={(id) => setHabits((prev) => ({ ...prev, [id]: !prev[id] }))}
+            onAddHabit={async ({ icon, label }) => {
+              const habit = { id: `h-${newId().slice(0, 8)}`, icon, label }
+              const ok = await patchMeta({ habits: [...habitDefs, habit] })
+              if (ok) {
+                setHabits((prev) => ({ ...prev, [habit.id]: true }))
+                showToast(`${label} added — it'll be here tomorrow too`)
+              }
+              return ok
+            }}
+          />
         </div>
 
         <div className="field">

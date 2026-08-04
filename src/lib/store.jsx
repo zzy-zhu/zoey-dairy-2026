@@ -81,6 +81,8 @@ export function StoreProvider({ children }) {
   const [weeklyEntries, setWeeklyEntries] = useState([])
   const [goals, setGoals] = useState([])
   const [days, setDays] = useState({}) // date -> { priorities: [...] }
+  const [inspo, setInspo] = useState([])
+  const [stories, setStories] = useState({}) // weekKey -> saved story note
 
   const showToast = useCallback((message) => {
     setToast({ message, id: newId() })
@@ -137,6 +139,8 @@ export function StoreProvider({ children }) {
       setWeeklyEntries([])
       setGoals([])
       setDays({})
+      setInspo([])
+      setStories({})
       return
     }
     let cancelled = false
@@ -162,16 +166,21 @@ export function StoreProvider({ children }) {
           await setDoc(doc(db, 'users', uid, 'data', 'meta'), nextMeta)
         }
 
-        const [entrySnap, weeklySnap, goalSnap, daySnap] = await Promise.all([
-          getDocs(query(collection(db, 'users', uid, 'entries'), orderBy('date', 'desc'))),
-          getDocs(
-            query(collection(db, 'users', uid, 'weeklyEntries'), orderBy('weekKey', 'desc'))
-          ),
-          getDocs(collection(db, 'users', uid, 'goals')),
-          getDocs(
-            query(collection(db, 'users', uid, 'days'), orderBy('date', 'desc'), limit(180))
-          ),
-        ])
+        const [entrySnap, weeklySnap, goalSnap, daySnap, inspoSnap, storySnap] =
+          await Promise.all([
+            getDocs(query(collection(db, 'users', uid, 'entries'), orderBy('date', 'desc'))),
+            getDocs(
+              query(collection(db, 'users', uid, 'weeklyEntries'), orderBy('weekKey', 'desc'))
+            ),
+            getDocs(collection(db, 'users', uid, 'goals')),
+            getDocs(
+              query(collection(db, 'users', uid, 'days'), orderBy('date', 'desc'), limit(180))
+            ),
+            getDocs(
+              query(collection(db, 'users', uid, 'inspo'), orderBy('createdAt', 'desc'), limit(60))
+            ),
+            getDocs(collection(db, 'users', uid, 'stories')),
+          ])
 
         if (cancelled) return
         setMeta(nextMeta)
@@ -187,6 +196,12 @@ export function StoreProvider({ children }) {
           dayMap[d.id] = { priorities: d.data().priorities || [] }
         })
         setDays(dayMap)
+        setInspo(inspoSnap.docs.map((d) => ({ id: d.id, ...d.data() })))
+        const storyMap = {}
+        storySnap.docs.forEach((d) => {
+          storyMap[d.id] = d.data()
+        })
+        setStories(storyMap)
       } catch (e) {
         if (!cancelled) setError(e.message)
       } finally {
@@ -347,6 +362,51 @@ export function StoreProvider({ children }) {
     [uid, write]
   )
 
+  /** Saves a generated inspiration document so you can come back to it. */
+  const saveInspo = useCallback(
+    async (docData) => {
+      if (!uid) return false
+      const record = {
+        ...docData,
+        id: docData.id || newId(),
+        createdAt: docData.createdAt || new Date().toISOString(),
+      }
+      setInspo((prev) => [record, ...prev.filter((x) => x.id !== record.id)])
+      const ok = await write(
+        () => setDoc(doc(db, 'users', uid, 'inspo', record.id), record),
+        "Couldn't save that"
+      )
+      return ok && record
+    },
+    [uid, write]
+  )
+
+  const deleteInspo = useCallback(
+    async (id) => {
+      if (!uid) return false
+      setInspo((prev) => prev.filter((x) => x.id !== id))
+      return write(() => deleteDoc(doc(db, 'users', uid, 'inspo', id)), "Couldn't delete that")
+    },
+    [uid, write]
+  )
+
+  /**
+   * The closing note on a week's story. Cached per week so replaying a story
+   * doesn't spend another API call.
+   */
+  const saveStoryNote = useCallback(
+    async (weekKey, data) => {
+      if (!uid) return false
+      const record = { weekKey, ...data, createdAt: new Date().toISOString() }
+      setStories((prev) => ({ ...prev, [weekKey]: record }))
+      return write(
+        () => setDoc(doc(db, 'users', uid, 'stories', weekKey), record),
+        "Couldn't save the story note"
+      )
+    },
+    [uid, write]
+  )
+
   /** Everything in one JSON blob — the download-your-archive button. */
   const exportAll = useCallback(() => {
     const payload = {
@@ -357,6 +417,8 @@ export function StoreProvider({ children }) {
       weeklyEntries,
       goals,
       days,
+      inspo,
+      stories,
     }
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
@@ -365,7 +427,7 @@ export function StoreProvider({ children }) {
     a.click()
     URL.revokeObjectURL(a.href)
     showToast('Archive downloaded')
-  }, [user, meta, entries, weeklyEntries, goals, days, showToast])
+  }, [user, meta, entries, weeklyEntries, goals, days, inspo, stories, showToast])
 
   const value = useMemo(
     () => ({
@@ -383,9 +445,12 @@ export function StoreProvider({ children }) {
       weeklyEntries,
       goals,
       days,
+      inspo,
+      stories,
       entryFor: (date) => entries.find((e) => e.date === date) || null,
       weeklyFor: (weekKey) => weeklyEntries.find((w) => w.weekKey === weekKey) || null,
       prioritiesFor: (date) => days[date]?.priorities || [],
+      goalFor: (id) => goals.find((g) => g.id === id) || null,
       patchMeta,
       saveEntry,
       moveEntry,
@@ -393,6 +458,9 @@ export function StoreProvider({ children }) {
       setPriorities,
       saveGoal,
       deleteGoal,
+      saveInspo,
+      deleteInspo,
+      saveStoryNote,
       exportAll,
       newId,
     }),
@@ -411,6 +479,8 @@ export function StoreProvider({ children }) {
       weeklyEntries,
       goals,
       days,
+      inspo,
+      stories,
       patchMeta,
       saveEntry,
       moveEntry,
@@ -418,6 +488,9 @@ export function StoreProvider({ children }) {
       setPriorities,
       saveGoal,
       deleteGoal,
+      saveInspo,
+      deleteInspo,
+      saveStoryNote,
       exportAll,
     ]
   )

@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from '../lib/store.jsx'
 import EntrySheet from '../components/EntrySheet.jsx'
+import HabitPicker from '../components/HabitPicker.jsx'
+import InspoSheet from '../components/InspoSheet.jsx'
+import WeekStory from '../components/WeekStory.jsx'
 import { buildArticle } from '../lib/format.js'
+import { goalAccent } from '../lib/story.js'
 import {
   currentStreak,
   dayNumber,
@@ -19,17 +23,26 @@ export default function Today({ go }) {
     user,
     meta,
     goals,
+    entries,
+    inspo,
     entryFor,
     weeklyFor,
     prioritiesFor,
     setPriorities,
     saveEntry,
+    patchMeta,
+    saveInspo,
+    deleteInspo,
+    showToast,
     newId,
   } = useStore()
 
   const today = todayStr()
   const entry = entryFor(today)
   const [writing, setWriting] = useState(false)
+  const [story, setStory] = useState(null)
+  const [openInspo, setOpenInspo] = useState(null)
+  const [sparking, setSparking] = useState(false)
 
   const dayN = dayNumber(meta.startDate, today)
   const streak = currentStreak(meta.checkins)
@@ -37,10 +50,34 @@ export default function Today({ go }) {
 
   const weekN = weekNumber(meta.startDate, today)
   const weekDone = !!weeklyFor(weekKey(meta.startDate, weekN))
-  const isWeekend = [0, 6].includes(new Date().getDay())
+  const isSunday = new Date().getDay() === 0
 
   const firstName = (user?.displayName || '').split(' ')[0]
-  const activeGoals = goals.filter((g) => !g.archived).slice(0, 2)
+  const activeGoals = goals.filter((g) => !g.archived && !g.doneAt)
+  const todaysInspo = inspo.find((d) => d.date === today) || null
+
+  async function spark() {
+    setSparking(true)
+    try {
+      const { generateInspo } = await import('../lib/insights.js')
+      const recent = entries
+        .slice(0, 6)
+        .map((e) => e.article)
+        .filter(Boolean)
+        .join('\n\n---\n\n')
+      const result = await generateInspo({
+        goals: activeGoals,
+        recent,
+        priorities: prioritiesFor(today).filter((p) => !p.done),
+      })
+      const saved = await saveInspo({ ...result, date: today })
+      if (saved) setOpenInspo(saved)
+    } catch (e) {
+      showToast(e.message || 'Could not write that')
+    } finally {
+      setSparking(false)
+    }
+  }
 
   return (
     <>
@@ -63,7 +100,32 @@ export default function Today({ go }) {
           </div>
         </section>
 
-        {isWeekend && !weekDone && (
+        {isSunday && (
+          <section className="card card-lift story-teaser">
+            <div className="story-teaser-glow" aria-hidden="true" />
+            <p className="eyebrow" style={{ color: 'var(--iris)' }}>
+              Sunday · Week {weekN}
+            </p>
+            <h2 className="display" style={{ margin: '0.4rem 0 0.35rem' }}>
+              Your week in review is ready
+            </h2>
+            <p className="muted">
+              Seven days, tap by tap. Takes about a minute.
+            </p>
+            <div className="row" style={{ marginTop: '1.05rem' }}>
+              <button className="btn btn-primary" onClick={() => setStory(weekN)}>
+                ▸ Play your week
+              </button>
+              {!weekDone && (
+                <button className="btn btn-ghost" onClick={() => go('weekly')}>
+                  Write the reflection
+                </button>
+              )}
+            </div>
+          </section>
+        )}
+
+        {!isSunday && new Date().getDay() === 6 && !weekDone && (
           <button className="card card-tint-gold" onClick={() => go('weekly')}>
             <div className="row-between">
               <div>
@@ -71,7 +133,7 @@ export default function Today({ go }) {
                   Week {weekN}
                 </p>
                 <p style={{ fontSize: '0.92rem', marginTop: 4 }}>
-                  It's the weekend — time to look back on the week.
+                  Saturday — a good time to look back on the week.
                 </p>
               </div>
               <span style={{ color: 'var(--gold)' }}>→</span>
@@ -82,6 +144,7 @@ export default function Today({ go }) {
         <Priorities
           key={today}
           initial={prioritiesFor(today)}
+          goals={activeGoals}
           onSave={(items) => setPriorities(today, items)}
           newId={newId}
         />
@@ -93,7 +156,37 @@ export default function Today({ go }) {
           questions={meta.questions}
           startDate={meta.startDate}
           saveEntry={saveEntry}
+          patchMeta={patchMeta}
+          showToast={showToast}
+          newId={newId}
         />
+
+        <section className="card card-tint-gold">
+          <p className="eyebrow" style={{ color: 'var(--gold)' }}>
+            ✦ Inspiration
+          </p>
+          <h2 className="display" style={{ margin: '0.4rem 0 0.35rem' }}>
+            Need a spark?
+          </h2>
+          <p className="muted">
+            One page, written from your own goals and the last few things you wrote.
+          </p>
+          <div className="row" style={{ marginTop: '1rem' }}>
+            <button className="btn btn-primary" onClick={spark} disabled={sparking}>
+              {sparking ? 'Writing…' : todaysInspo ? 'Write me another' : 'Write me one →'}
+            </button>
+            {todaysInspo && (
+              <button className="btn btn-ghost" onClick={() => setOpenInspo(todaysInspo)}>
+                Today’s page
+              </button>
+            )}
+            {inspo.length > 0 && (
+              <button className="btn btn-ghost" onClick={() => go('insights')}>
+                All pages
+              </button>
+            )}
+          </div>
+        </section>
 
         {activeGoals.length > 0 && (
           <>
@@ -103,14 +196,17 @@ export default function Today({ go }) {
                 All goals →
               </button>
             </div>
-            {activeGoals.map((g) => {
+            {activeGoals.slice(0, 2).map((g) => {
               const done = (g.milestones || []).filter((m) => m.done).length
               const total = (g.milestones || []).length
-              const pct = total ? Math.round((done / total) * 100) : g.doneAt ? 100 : 0
+              const pct = total ? Math.round((done / total) * 100) : 0
               return (
                 <button key={g.id} className="card" onClick={() => go('goals')}>
                   <div className="row-between" style={{ marginBottom: '0.6rem' }}>
-                    <strong style={{ fontSize: '0.94rem' }}>{g.title}</strong>
+                    <span className="row" style={{ gap: '0.5rem', flexWrap: 'nowrap' }}>
+                      <i className="goal-dot" style={{ background: goalAccent(g.id) }} />
+                      <strong style={{ fontSize: '0.94rem' }}>{g.title}</strong>
+                    </span>
                     <span className="tiny">{pct}%</span>
                   </div>
                   <div className="meter">
@@ -153,16 +249,25 @@ export default function Today({ go }) {
       </div>
 
       {writing && <EntrySheet date={today} onClose={() => setWriting(false)} />}
+      {story && <WeekStory weekNum={story} onClose={() => setStory(null)} />}
+      {openInspo && (
+        <InspoSheet
+          doc={openInspo}
+          onClose={() => setOpenInspo(null)}
+          onDelete={deleteInspo}
+        />
+      )}
     </>
   )
 }
 
 /**
- * Up to five things that matter today. Saves shortly after you stop typing.
- * Seeded once from the loaded day and keyed by date, so an in-flight save
- * never overwrites what you're mid-way through typing.
+ * Up to five things that matter today, each optionally pinned to a goal so the
+ * week's story can show where the effort actually went. Seeded once from the
+ * loaded day and keyed by date, so an in-flight save never overwrites what
+ * you're mid-way through typing.
  */
-function Priorities({ initial, onSave, newId }) {
+function Priorities({ initial, goals, onSave, newId }) {
   const [local, setLocal] = useState(initial)
   const timer = useRef(null)
 
@@ -197,49 +302,82 @@ function Priorities({ initial, onSave, newId }) {
 
       {local.length === 0 && (
         <p className="tiny" style={{ marginBottom: '0.5rem' }}>
-          Name the one to three things that would make today feel worthwhile.
+          Name the one to three things that would make today feel worthwhile — and tie them to a
+          goal if they belong to one.
         </p>
       )}
 
-      {local.map((p, i) => (
-        <div className={`priority${p.done ? ' done' : ''}`} key={p.id}>
-          <button
-            className={`tick${p.done ? ' on' : ''}`}
-            aria-label={p.done ? 'Mark unfinished' : 'Mark done'}
-            onClick={() =>
-              commit(
-                local.map((x) => (x.id === p.id ? { ...x, done: !x.done } : x)),
-                true
-              )
-            }
-          >
-            ✓
-          </button>
-          <input
-            className="priority-text"
-            value={p.text}
-            placeholder="Something that matters today…"
-            onChange={(e) =>
-              commit(local.map((x) => (x.id === p.id ? { ...x, text: e.target.value } : x)))
-            }
-            onBlur={() => commit(local.filter((x) => x.text.trim() || x.id === p.id), true)}
-          />
-          <button
-            className="icon-btn"
-            style={{ width: 26, height: 26, fontSize: '0.75rem' }}
-            aria-label="Remove"
-            onClick={() => commit(local.filter((x) => x.id !== p.id), true)}
-          >
-            ✕
-          </button>
-        </div>
-      ))}
+      {local.map((p) => {
+        const goal = goals.find((g) => g.id === p.goalId) || null
+        return (
+          <div className={`priority${p.done ? ' done' : ''}`} key={p.id}>
+            <button
+              className={`tick${p.done ? ' on' : ''}`}
+              aria-label={p.done ? 'Mark unfinished' : 'Mark done'}
+              onClick={() =>
+                commit(
+                  local.map((x) => (x.id === p.id ? { ...x, done: !x.done } : x)),
+                  true
+                )
+              }
+            >
+              ✓
+            </button>
+            <input
+              className="priority-text"
+              value={p.text}
+              placeholder="Something that matters today…"
+              onChange={(e) =>
+                commit(local.map((x) => (x.id === p.id ? { ...x, text: e.target.value } : x)))
+              }
+              onBlur={() => commit(local.filter((x) => x.text.trim() || x.id === p.id), true)}
+            />
+            <button
+              className="icon-btn"
+              style={{ width: 26, height: 26, fontSize: '0.75rem' }}
+              aria-label="Remove"
+              onClick={() => commit(local.filter((x) => x.id !== p.id), true)}
+            >
+              ✕
+            </button>
+
+            {goals.length > 0 && (
+              <label className="priority-goal">
+                <i
+                  className="goal-dot"
+                  style={{ background: goal ? goalAccent(goal.id) : 'var(--hairline-strong)' }}
+                />
+                <select
+                  className={`goal-select${goal ? ' linked' : ''}`}
+                  value={p.goalId || ''}
+                  aria-label="Link to a goal"
+                  onChange={(e) =>
+                    commit(
+                      local.map((x) =>
+                        x.id === p.id ? { ...x, goalId: e.target.value || null } : x
+                      ),
+                      true
+                    )
+                  }
+                >
+                  <option value="">no goal</option>
+                  {goals.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+          </div>
+        )
+      })}
 
       {local.length < MAX_PRIORITIES && (
         <button
           className="btn btn-ghost btn-sm"
           style={{ marginTop: '0.6rem', paddingLeft: 0 }}
-          onClick={() => commit([...local, { id: newId(), text: '', done: false }])}
+          onClick={() => commit([...local, { id: newId(), text: '', done: false, goalId: null }])}
         >
           + Add a priority
         </button>
@@ -252,7 +390,17 @@ function Priorities({ initial, onSave, newId }) {
  * Habit ticks and the one-word mood, editable without opening the writing
  * sheet. These save into the day's entry but never mark the day as written.
  */
-function QuickHabits({ date, entry, habitDefs, questions, startDate, saveEntry }) {
+function QuickHabits({
+  date,
+  entry,
+  habitDefs,
+  questions,
+  startDate,
+  saveEntry,
+  patchMeta,
+  showToast,
+  newId,
+}) {
   const habits = entry?.habits || {}
   const [emotion, setEmotion] = useState(entry?.emotion || '')
   const lastSaved = useRef(entry?.emotion || '')
@@ -288,23 +436,32 @@ function QuickHabits({ date, entry, habitDefs, questions, startDate, saveEntry }
     )
   }
 
+  /**
+   * A habit added here joins the standing list, so it's waiting to be ticked
+   * tomorrow and every day after. It starts ticked for today, since you're
+   * usually adding it because you just did it.
+   */
+  async function addHabit({ icon, label }) {
+    const habit = { id: `h-${newId().slice(0, 8)}`, icon, label }
+    const ok = await patchMeta({ habits: [...habitDefs, habit] })
+    if (ok) {
+      persist({ ...habits, [habit.id]: true }, emotion)
+      showToast(`${label} added — it'll be here tomorrow too`)
+    }
+    return ok
+  }
+
   return (
     <section className="card">
       <div className="eyebrow" style={{ marginBottom: '0.6rem' }}>
         Today's habits
       </div>
-      <div className="row">
-        {habitDefs.map((h) => (
-          <button
-            key={h.id}
-            className={`chip${habits[h.id] ? ' on' : ''}`}
-            onClick={() => persist({ ...habits, [h.id]: !habits[h.id] }, emotion)}
-          >
-            <span style={{ fontSize: '1rem' }}>{h.icon}</span>
-            {h.label}
-          </button>
-        ))}
-      </div>
+      <HabitPicker
+        habitDefs={habitDefs}
+        values={habits}
+        onToggle={(id) => persist({ ...habits, [id]: !habits[id] }, emotion)}
+        onAddHabit={addHabit}
+      />
       <div className="divider" />
       <div className="field">
         <label className="field-label" htmlFor="quick-feeling">

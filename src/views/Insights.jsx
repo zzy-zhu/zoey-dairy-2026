@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useStore } from '../lib/store.jsx'
+import InspoSheet from '../components/InspoSheet.jsx'
 import { generateInsights, getApiKey, insightsToText, setApiKey } from '../lib/insights.js'
-import { dayToDate, todayStr, weekLabel, weekNumber } from '../lib/dates.js'
+import { dayToDate, fmtShort, todayStr, weekLabel, weekNumber } from '../lib/dates.js'
 
 export default function Insights() {
-  const { meta, entries, showToast } = useStore()
+  const { meta, entries, inspo, deleteInspo, showToast } = useStore()
+  const [openInspo, setOpenInspo] = useState(null)
   const currentWeek = weekNumber(meta.startDate, todayStr())
 
   const [key, setKey] = useState(getApiKey())
@@ -180,6 +182,44 @@ export default function Insights() {
             </button>
           </div>
         </>
+      )}
+
+      {inspo.length > 0 && (
+        <>
+          <div className="section-head">
+            <h2 className="display">Inspiration pages</h2>
+            <span className="tiny">{inspo.length} saved</span>
+          </div>
+          <section className="card">
+            {inspo.map((d) => (
+              <button key={d.id} className="list-row" onClick={() => setOpenInspo(d)}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: '0.92rem', fontWeight: 500 }}>{d.title}</div>
+                  <div
+                    className="tiny"
+                    style={{
+                      marginTop: 2,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {fmtShort(d.date)} · {d.smallStep}
+                  </div>
+                </div>
+                <span className="tiny">→</span>
+              </button>
+            ))}
+          </section>
+        </>
+      )}
+
+      {openInspo && (
+        <InspoSheet
+          doc={openInspo}
+          onClose={() => setOpenInspo(null)}
+          onDelete={deleteInspo}
+        />
       )}
     </div>
   )

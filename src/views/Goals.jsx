@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Sheet from '../components/Sheet.jsx'
 import { useStore } from '../lib/store.jsx'
-import { fmtShort, isValidDateStr, todayStr, diffDays } from '../lib/dates.js'
+import { goalAccent } from '../lib/story.js'
+import { addDays, fmtShort, isValidDateStr, todayStr, diffDays } from '../lib/dates.js'
 
 const HORIZONS = [
   { id: 'season', label: 'This season', days: 90 },
@@ -11,9 +12,24 @@ const HORIZONS = [
 ]
 
 export default function Goals() {
-  const { goals, saveGoal, deleteGoal, showToast, newId } = useStore()
+  const { goals, days, saveGoal, deleteGoal, showToast, newId } = useStore()
   const [editing, setEditing] = useState(null) // goal object or 'new'
   const [showArchived, setShowArchived] = useState(false)
+
+  // Priorities from the last seven days, grouped by the goal they were tied to.
+  const recentWork = useMemo(() => {
+    const window = Array.from({ length: 7 }, (_, i) => addDays(todayStr(), -i))
+    const tally = {}
+    window.forEach((d) => {
+      ;(days[d]?.priorities || []).forEach((p) => {
+        if (!p.goalId) return
+        const t = (tally[p.goalId] ||= { total: 0, done: 0 })
+        t.total++
+        if (p.done) t.done++
+      })
+    })
+    return tally
+  }, [days])
 
   const active = goals.filter((g) => !g.archived && !g.doneAt)
   const done = goals.filter((g) => !g.archived && g.doneAt)
@@ -58,6 +74,7 @@ export default function Goals() {
           <GoalCard
             key={g.id}
             goal={g}
+            work={recentWork[g.id]}
             onEdit={() => setEditing(g)}
             onToggle={(id) => toggleMilestone(g, id)}
             onComplete={() => {
@@ -150,7 +167,7 @@ export default function Goals() {
   )
 }
 
-function GoalCard({ goal, onEdit, onToggle, onComplete, onReopen }) {
+function GoalCard({ goal, work, onEdit, onToggle, onComplete, onReopen }) {
   const milestones = goal.milestones || []
   const done = milestones.filter((m) => m.done).length
   const pct = goal.doneAt
@@ -174,7 +191,13 @@ function GoalCard({ goal, onEdit, onToggle, onComplete, onReopen }) {
     <section className="card card-lift">
       <div className="row-between" style={{ alignItems: 'flex-start' }}>
         <div style={{ flex: 1 }}>
-          <h3 className="display">{goal.title}</h3>
+          <h3 className="display">
+            <i
+              className="goal-dot"
+              style={{ background: goalAccent(goal.id), marginRight: 8, verticalAlign: 'middle' }}
+            />
+            {goal.title}
+          </h3>
           {goal.why && (
             <p className="serif-quote" style={{ marginTop: '0.45rem' }}>
               “{goal.why}”
@@ -201,6 +224,14 @@ function GoalCard({ goal, onEdit, onToggle, onComplete, onReopen }) {
       <div className="meter">
         <i style={{ width: `${pct}%` }} />
       </div>
+
+      {work?.total > 0 && (
+        <p className="tiny" style={{ marginTop: '0.6rem' }}>
+          This week: {work.done} of {work.total}{' '}
+          {work.total === 1 ? 'priority' : 'priorities'} tied to this goal
+          {work.done === work.total ? ' — all done' : ''}
+        </p>
+      )}
 
       {milestones.length > 0 && (
         <div style={{ marginTop: '0.85rem' }}>

@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { StoreContext, DEFAULT_QUESTIONS, DEFAULT_WEEKLY_QUESTIONS, DEFAULT_HABITS } from './lib/store.jsx'
 import { buildArticle, buildWeeklyArticle } from './lib/format.js'
-import { addDays, todayStr, weekKey, weekLabel } from './lib/dates.js'
+import { addDays, todayStr, weekKey, weekLabel, weekNumber } from './lib/dates.js'
+import WeekStory from './components/WeekStory.jsx'
 import Today from './views/Today.jsx'
 import Goals from './views/Goals.jsx'
 import Weekly from './views/Weekly.jsx'
@@ -111,12 +112,49 @@ const goals = [
 const days = {
   [todayStr()]: {
     priorities: [
-      { id: 'p1', text: 'Typography pass on the case study', done: true },
-      { id: 'p2', text: 'Reply to Mei about the workshop', done: false },
-      { id: 'p3', text: 'Walk before the light goes', done: false },
+      { id: 'p1', text: 'Typography pass on the case study', done: true, goalId: 'g1' },
+      { id: 'p2', text: 'Reply to Mei about the workshop', done: false, goalId: null },
+      { id: 'p3', text: 'Walk before the light goes', done: false, goalId: 'g2' },
     ],
   },
 }
+// A week's worth of linked priorities so the story has something to show.
+for (let i = 1; i < 7; i++) {
+  const d = addDays(todayStr(), -i)
+  days[d] = {
+    priorities: [
+      { id: `a${i}`, text: 'Move the portfolio forward', done: i % 3 !== 0, goalId: 'g1' },
+      { id: `b${i}`, text: 'Run', done: i % 2 === 0, goalId: 'g2' },
+    ],
+  }
+}
+
+const inspo = [
+  {
+    id: 'i1',
+    date: todayStr(),
+    title: 'The version of this that takes an afternoon',
+    opening:
+      'You keep describing the portfolio as almost finished, which usually means the remaining work is a decision rather than a task.',
+    ideas: [
+      {
+        title: 'Ship the two you have',
+        body: 'Three projects was your number, not a requirement. Two finished case studies read better than three half-written ones.',
+      },
+      {
+        title: 'Let the typography be boring',
+        body: 'You have rewritten the type pass twice. Pick the one you had on Tuesday and move on.',
+      },
+      {
+        title: 'Send it before it is ready',
+        body: 'Mei asked about your work. A rough link with a note beats a polished one that never goes out.',
+      },
+    ],
+    smallStep: 'Open the case study and set the body type once, without changing anything else.',
+    closing: 'The work is closer than the feeling about the work.',
+    createdAt: new Date('2026-08-04T09:00:00Z').toISOString(),
+  },
+]
 
 const value = {
   user: { displayName: 'Zoey Zhu', email: 'zzhu@ideo.com', photoURL: null },
@@ -139,9 +177,12 @@ const value = {
   weeklyEntries,
   goals,
   days,
+  inspo,
+  stories: {},
   entryFor: (d) => entries.find((e) => e.date === d) || null,
   weeklyFor: (k) => weeklyEntries.find((w) => w.weekKey === k) || null,
   prioritiesFor: (d) => days[d]?.priorities || [],
+  goalFor: (id) => goals.find((g) => g.id === id) || null,
   patchMeta: async () => true,
   saveEntry: async () => true,
   moveEntry: async () => true,
@@ -149,11 +190,14 @@ const value = {
   setPriorities: async () => true,
   saveGoal: async () => true,
   deleteGoal: async () => true,
+  saveInspo: async (d) => ({ ...d, id: 'new' }),
+  deleteInspo: async () => true,
+  saveStoryNote: async () => true,
   exportAll: () => {},
   newId: () => `id-${Math.random().toString(36).slice(2)}`,
 }
 
-const VIEWS = ['today', 'goals', 'weekly', 'journal', 'insights', 'settings']
+const VIEWS = ['today', 'goals', 'weekly', 'journal', 'insights', 'settings', 'story']
 
 function Harness() {
   const initial = new URLSearchParams(location.search).get('view') || 'today'
@@ -183,6 +227,9 @@ function Harness() {
           </div>
         </header>
         <main>
+          {view === 'story' && (
+            <WeekStory weekNum={weekNumber(START, todayStr())} onClose={() => setView('today')} />
+          )}
           {view === 'today' && <Today go={setView} />}
           {view === 'goals' && <Goals />}
           {view === 'weekly' && <Weekly />}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Sheet from '../components/Sheet.jsx'
 import ReadSheet from '../components/ReadSheet.jsx'
+import WeekStory from '../components/WeekStory.jsx'
 import { useStore } from '../lib/store.jsx'
 import { buildWeeklyArticle, preview } from '../lib/format.js'
 import {
@@ -18,6 +19,7 @@ export default function Weekly() {
   const currentWeek = weekNumber(meta.startDate, todayStr())
   const [writing, setWriting] = useState(null) // week number
   const [reading, setReading] = useState(null) // weekly entry
+  const [story, setStory] = useState(null) // week number
   const [chapter, setChapter] = useState(chapterOfWeek(currentWeek))
 
   const thisWeek = weeklyFor(weekKey(meta.startDate, currentWeek))
@@ -45,8 +47,11 @@ export default function Weekly() {
             {checkinsInWeek(currentWeek)} of 7 days written so far.
           </p>
           <div className="row" style={{ marginTop: '1.1rem' }}>
-            <button className="btn btn-primary" onClick={() => setWriting(currentWeek)}>
-              {thisWeek ? 'Edit this week' : 'Write weekly reflection →'}
+            <button className="btn btn-primary" onClick={() => setStory(currentWeek)}>
+              ▸ Play your week
+            </button>
+            <button className="btn" onClick={() => setWriting(currentWeek)}>
+              {thisWeek ? 'Edit reflection' : 'Write reflection'}
             </button>
             {thisWeek && (
               <button className="btn btn-ghost" onClick={() => setReading(thisWeek)}>
@@ -104,7 +109,7 @@ export default function Weekly() {
         </div>
         <section className="card">
           <p className="tiny" style={{ marginBottom: '0.65rem' }}>
-            Thirteen weeks — about a season.
+            Thirteen weeks — about a season. Tap any week to play it back.
           </p>
           <div className="week-grid">
             {weeksInChapter(chapter).map((n) => {
@@ -126,9 +131,9 @@ export default function Weekly() {
                   title={`${weekLabel(meta.startDate, n)} · ${count} days written${
                     entry ? ' · reflection written' : ''
                   }`}
+                  disabled={future}
                   onClick={() => {
-                    if (entry) setReading(entry)
-                    else if (!future) setWriting(n)
+                    if (!future) setStory(n)
                   }}
                 >
                   {n}
@@ -175,6 +180,8 @@ export default function Weekly() {
           }}
         />
       )}
+
+      {story && <WeekStory weekNum={story} onClose={() => setStory(null)} />}
 
       {reading && (
         <ReadSheet

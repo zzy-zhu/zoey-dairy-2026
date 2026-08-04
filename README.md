@@ -80,6 +80,15 @@ today's priorities, what's counting down toward a goal date, and the most recent
 logs. It's the default landing view — deep links like `#today` or `#goals` still
 work.
 
+The panels are charts where a chart says it faster: a ring for how much of the
+elapsed time you've kept up, a 14-day bar chart of words a day (hover any bar),
+labelled bars for habits out of seven, and the note mix as one stacked bar with a
+labelled legend. Chart marks use a deeper validated step of the note hues — the
+post-it pastels are lovely on paper but too pale to tell apart as adjacent fills,
+so `--chart-*` in `styles.css` carries the checked values (worst adjacent pair
+ΔE 16.4 simulated colour-vision deficiency, 25.7 normal vision on cream; re-stepped
+for navy rather than flipped). Nothing is identified by colour alone.
+
 It's the one view that takes the whole page: the shell widens to 1240px on
 `#zos` and the panels sit in a 2:1 grid — the chain and the week's notes in the
 wide column, priorities, goal countdowns and the week's state in the narrow one,

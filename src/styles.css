@@ -2207,6 +2207,8 @@ button.memo:hover {
 /* Two panels wide, one narrow — the visual panels get the room. */
 .os-grid {
   display: grid;
+  /* minmax(0, …) so a long goal title can't stretch the column past the page */
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.9rem;
   align-items: start;
 }
@@ -2232,4 +2234,266 @@ button.memo:hover {
     grid-template-columns: repeat(28, minmax(0, 1fr));
     gap: 4px;
   }
+}
+
+/* ─── Dashboard charts ────────────────────────────────────────────────────── */
+
+:root {
+  /* Chart-grade steps of the note hues. The post-it pastels are too pale to
+     separate as adjacent fills, so charts use these and label every segment.
+     Validated (light surface #fffdf7): worst adjacent pair ΔE 16.4 simulated
+     CVD, 25.7 normal vision. */
+  --chart-action: #2f4bc7;
+  --chart-emotion: #c0416c;
+  --chart-day: #d99b00;
+  --chart-bar: #2f4bc7;
+  --chart-grid: rgba(16, 27, 59, 0.09);
+}
+
+:root[data-theme='nuit'] {
+  /* Same hues, re-stepped for the dark surface #111e42 rather than flipped. */
+  --chart-action: #6a83ee;
+  --chart-emotion: #cf5d86;
+  --chart-day: #b38a1c;
+  --chart-bar: #6a83ee;
+  --chart-grid: rgba(246, 240, 226, 0.12);
+}
+
+/* Panel headings: quieter than a page title */
+.os-h {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.22rem;
+  line-height: 1.1;
+}
+
+/* Chain: numbers beside the ring */
+.os-chain {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+.os-chain .os-metrics {
+  flex: 1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 0;
+}
+
+.ring-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+.ring {
+  position: relative;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(
+    var(--chart-bar) calc(var(--pct) * 1%),
+    var(--chart-grid) 0
+  );
+}
+.ring::after {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  background: var(--surface);
+}
+.ring > span {
+  position: relative;
+  z-index: 1;
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+/* Bars: one hue, thin marks, rounded data-ends on the baseline */
+.chart {
+  position: relative;
+}
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 92px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--chart-grid);
+}
+.bar-slot {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+.bar-slot > i {
+  display: block;
+  width: 100%;
+  background: var(--chart-bar);
+  border-radius: 4px 4px 0 0;
+  min-height: 2px;
+  transition: opacity 0.12s;
+}
+.bar-slot > i.bar-none {
+  height: 3px;
+  background: var(--chart-grid);
+  border-radius: 2px;
+}
+.bar-slot:hover > i,
+.bar-slot.hot > i {
+  opacity: 0.75;
+}
+
+.chart-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+.chart-note {
+  color: var(--ink-soft);
+}
+
+.chart-tip {
+  position: absolute;
+  top: -2px;
+  padding: 0.3rem 0.55rem;
+  border-radius: var(--radius-sm);
+  background: var(--blue-deep);
+  color: var(--paper);
+  font-size: 0.72rem;
+  line-height: 1.3;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme='nuit'] .chart-tip {
+  background: var(--surface-strong);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
+}
+.chart-tip.left {
+  left: 0;
+}
+.chart-tip.right {
+  right: 0;
+}
+.chart-tip strong {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 0.95rem;
+}
+.chart-tip span {
+  display: block;
+  opacity: 0.7;
+}
+
+/* Habit bars: labelled, so no legend and no tooltip needed */
+.hbars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.hbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1.6fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+}
+.hbar-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hbar-track {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--chart-grid);
+  overflow: hidden;
+}
+.hbar-track > i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--chart-bar);
+}
+.hbar-value {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+
+/* The week's note mix */
+.pattern {
+  margin-top: 0.8rem;
+}
+.pattern-bar {
+  display: flex;
+  gap: 2px; /* a surface gap keeps adjacent segments legible */
+  height: 9px;
+  background: none;
+  border-radius: 0;
+  overflow: visible;
+}
+.pattern-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+}
+.pattern-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0.5rem 0 0.35rem;
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+}
+.pattern-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.pattern-legend span.off {
+  opacity: 0.4;
+}
+.pattern-legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex: none;
+}
+.pattern-legend strong {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+/* ─── Dashboard density ───────────────────────────────────────────────────── */
+
+.shell-wide .card {
+  padding: 0.95rem 1.05rem;
+}
+.shell-wide .os-grid .stack {
+  gap: 0.75rem;
+}
+.shell-wide .section-head {
+  margin: 1.1rem 0 0.5rem;
+}
+/* The board is a pinboard, not a grid — keep it tight so it doesn't leave
+   a lake of empty surface under the last note. */
+.shell-wide .memo-board {
+  gap: 0.5rem;
+  padding: 0;
 }

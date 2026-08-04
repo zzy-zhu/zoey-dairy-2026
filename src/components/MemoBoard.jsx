@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import Memo from './Memo.jsx'
 import { useStore } from '../lib/store.jsx'
-import { KINDS, SHAPES, kindOf, memoPattern, patternSentence } from '../lib/memos.js'
+import { PatternBar } from './Charts.jsx'
+import { KINDS, SHAPES, kindOf, memoPattern } from '../lib/memos.js'
 import { todayStr } from '../lib/dates.js'
 
 const MAX_LEN = 180
@@ -137,27 +138,7 @@ export function MemoBoard({ memos, onDelete, showPattern = false, small = false,
           />
         ))}
       </div>
-      {showPattern && pattern.total > 1 && (
-        <>
-          <div className="pattern-bar" aria-hidden="true">
-            {KINDS.map((k) =>
-              pattern.counts[k.id] ? (
-                <i
-                  key={k.id}
-                  style={{
-                    width: `${(pattern.counts[k.id] / pattern.total) * 100}%`,
-                    background: k.color,
-                  }}
-                  title={`${k.label}: ${pattern.counts[k.id]}`}
-                />
-              ) : null
-            )}
-          </div>
-          <p className="tiny" style={{ marginTop: '0.4rem' }}>
-            {patternSentence(pattern)}
-          </p>
-        </>
-      )}
+      {showPattern && pattern.total > 1 && <PatternBar memos={memos} />}
     </>
   )
 }

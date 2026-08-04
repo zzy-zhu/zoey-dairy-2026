@@ -28,6 +28,7 @@ export const KINDS = [
     hint: 'something you did',
     color: 'var(--memo-blue)',
     ink: 'var(--memo-blue-ink)',
+    chart: 'var(--chart-action)',
   },
   {
     id: 'emotion',
@@ -36,6 +37,7 @@ export const KINDS = [
     hint: 'something you felt',
     color: 'var(--memo-rose)',
     ink: 'var(--memo-rose-ink)',
+    chart: 'var(--chart-emotion)',
   },
   {
     id: 'day',
@@ -44,6 +46,7 @@ export const KINDS = [
     hint: 'what the day was like',
     color: 'var(--memo-yellow)',
     ink: 'var(--memo-yellow-ink)',
+    chart: 'var(--chart-day)',
   },
 ]
 

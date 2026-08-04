@@ -5,6 +5,7 @@ import EntrySheet from '../components/EntrySheet.jsx'
 import ReadSheet from '../components/ReadSheet.jsx'
 import WeekStory from '../components/WeekStory.jsx'
 import { MemoBoard } from '../components/MemoBoard.jsx'
+import { DayBars, HabitBars, Ring } from '../components/Charts.jsx'
 import { streakLine, streakStats } from '../lib/streak.js'
 import { goalAccent } from '../lib/story.js'
 import { preview } from '../lib/format.js'
@@ -45,6 +46,31 @@ export default function ZOS({ go }) {
   const weekMemos = useMemo(
     () => memos.filter((m) => weekDates.includes(m.date)),
     [memos, weekDates]
+  )
+
+  const wordsOf = (e) =>
+    (e?.answers || []).reduce(
+      (n, a) => n + (a ? a.trim().split(/\s+/).filter(Boolean).length : 0),
+      0
+    )
+
+  // Last fortnight of writing volume, oldest first.
+  const fortnight = useMemo(
+    () =>
+      Array.from({ length: 14 }, (_, i) => {
+        const date = addDays(today, -(13 - i))
+        return { date, value: wordsOf(entries.find((e) => e.date === date)) }
+      }),
+    [entries, today]
+  )
+
+  const habitCounts = useMemo(
+    () =>
+      meta.habits.map((h) => ({
+        ...h,
+        count: weekDates.filter((d) => entries.find((e) => e.date === d)?.habits?.[h.id]).length,
+      })),
+    [meta.habits, entries, weekDates]
   )
 
   const priorities = prioritiesFor(today)
@@ -104,7 +130,7 @@ export default function ZOS({ go }) {
         {/* Streak */}
         <section className="card">
           <div className="row-between" style={{ marginBottom: '0.7rem' }}>
-            <h2 className="display" style={{ fontSize: '1.35rem' }}>
+            <h2 className="os-h">
               The chain
             </h2>
             {streak.alive ? (
@@ -114,23 +140,22 @@ export default function ZOS({ go }) {
             )}
           </div>
 
-          <div className="os-metrics">
-            <div>
-              <span className="os-metric">{streak.current}</span>
-              <span className="stat-l">Current</span>
+          <div className="os-chain">
+            <div className="os-metrics">
+              <div>
+                <span className="os-metric">{streak.current}</span>
+                <span className="stat-l">Current</span>
+              </div>
+              <div>
+                <span className="os-metric">{streak.best}</span>
+                <span className="stat-l">Longest</span>
+              </div>
+              <div>
+                <span className="os-metric">{streak.total}</span>
+                <span className="stat-l">Days total</span>
+              </div>
             </div>
-            <div>
-              <span className="os-metric">{streak.best}</span>
-              <span className="stat-l">Longest</span>
-            </div>
-            <div>
-              <span className="os-metric">{streak.total}</span>
-              <span className="stat-l">Days total</span>
-            </div>
-            <div>
-              <span className="os-metric">{streak.consistency}%</span>
-              <span className="stat-l">Kept up</span>
-            </div>
+            <Ring value={streak.consistency} label="Kept up" />
           </div>
 
           <div className="ribbon" role="img" aria-label="Last 28 days">
@@ -147,10 +172,29 @@ export default function ZOS({ go }) {
           </p>
         </section>
 
+        {/* Writing volume + habits */}
+        <section className="card">
+          <div className="row-between" style={{ marginBottom: '0.55rem' }}>
+            <h2 className="os-h">Words a day</h2>
+            <span className="tiny">last 14 days</span>
+          </div>
+          <DayBars days={fortnight} />
+          {habitCounts.some((h) => h.count > 0) && (
+            <>
+              <div className="divider" />
+              <div className="row-between" style={{ marginBottom: '0.5rem' }}>
+                <h2 className="os-h">Habits</h2>
+                <span className="tiny">this week</span>
+              </div>
+              <HabitBars habits={habitCounts} />
+            </>
+          )}
+        </section>
+
         {/* Memo pattern */}
         <section className="card">
           <div className="row-between" style={{ marginBottom: '0.6rem' }}>
-            <h2 className="display" style={{ fontSize: '1.35rem' }}>
+            <h2 className="os-h">
               This week's notes
             </h2>
             <span className="tiny">{weekMemos.length} pinned</span>
@@ -178,7 +222,7 @@ export default function ZOS({ go }) {
         {priorities.length > 0 && (
           <section className="card">
             <div className="row-between" style={{ marginBottom: '0.5rem' }}>
-              <h2 className="display" style={{ fontSize: '1.35rem' }}>
+              <h2 className="os-h">
                 Today's priorities
               </h2>
               <span className={`badge${prioritiesDone === priorities.length ? ' badge-jade' : ' badge-quiet'}`}>
@@ -210,7 +254,7 @@ export default function ZOS({ go }) {
         {/* Countdowns to goal dates */}
         {deadlines.length > 0 && (
           <section className="card">
-            <h2 className="display" style={{ fontSize: '1.35rem', marginBottom: '0.6rem' }}>
+            <h2 className="os-h" style={{ marginBottom: '0.6rem' }}>
               Counting down
             </h2>
             {deadlines.map(({ goal, days }) => (
@@ -229,7 +273,7 @@ export default function ZOS({ go }) {
         <section className="card">
           <div className="row-between">
             <div>
-              <h2 className="display" style={{ fontSize: '1.35rem' }}>
+              <h2 className="os-h">
                 Week {weekN}
               </h2>
               <p className="tiny" style={{ marginTop: 2 }}>

@@ -4,6 +4,7 @@ import EntrySheet from '../components/EntrySheet.jsx'
 import HabitPicker from '../components/HabitPicker.jsx'
 import InspoSheet from '../components/InspoSheet.jsx'
 import WeekStory from '../components/WeekStory.jsx'
+import { SparkCapture, SparkRow } from '../components/Sparks.jsx'
 import { buildArticle } from '../lib/format.js'
 import { goalAccent } from '../lib/story.js'
 import {
@@ -54,7 +55,7 @@ export default function Today({ go }) {
 
   const firstName = (user?.displayName || '').split(' ')[0]
   const activeGoals = goals.filter((g) => !g.archived && !g.doneAt)
-  const todaysInspo = inspo.find((d) => d.date === today) || null
+  const todaysSparks = inspo.filter((d) => d.date === today)
 
   async function spark() {
     setSparking(true)
@@ -70,7 +71,7 @@ export default function Today({ go }) {
         recent,
         priorities: prioritiesFor(today).filter((p) => !p.done),
       })
-      const saved = await saveInspo({ ...result, date: today })
+      const saved = await saveInspo({ ...result, kind: 'page', date: today, goalId: null })
       if (saved) setOpenInspo(saved)
     } catch (e) {
       showToast(e.message || 'Could not write that')
@@ -96,7 +97,7 @@ export default function Today({ go }) {
             <button className="btn btn-primary" onClick={() => setWriting(true)}>
               {written ? 'Open today’s entry' : entry ? 'Continue writing' : 'Write today →'}
             </button>
-            {written && <span className="badge badge-jade">✓ Written</span>}
+            {written && <span className="badge badge-jade">written</span>}
           </div>
         </section>
 
@@ -161,30 +162,47 @@ export default function Today({ go }) {
           newId={newId}
         />
 
-        <section className="card card-tint-gold">
-          <p className="eyebrow" style={{ color: 'var(--gold)' }}>
-            ✦ Inspiration
-          </p>
-          <h2 className="display" style={{ margin: '0.4rem 0 0.35rem' }}>
-            Need a spark?
-          </h2>
-          <p className="muted">
-            One page, written from your own goals and the last few things you wrote.
-          </p>
-          <div className="row" style={{ marginTop: '1rem' }}>
-            <button className="btn btn-primary" onClick={spark} disabled={sparking}>
-              {sparking ? 'Writing…' : todaysInspo ? 'Write me another' : 'Write me one →'}
-            </button>
-            {todaysInspo && (
-              <button className="btn btn-ghost" onClick={() => setOpenInspo(todaysInspo)}>
-                Today’s page
-              </button>
-            )}
+        <section className="card">
+          <div className="row-between" style={{ marginBottom: '0.5rem' }}>
+            <h2 className="display" style={{ fontSize: '1.35rem' }}>
+              Inspiration
+            </h2>
             {inspo.length > 0 && (
-              <button className="btn btn-ghost" onClick={() => go('insights')}>
-                All pages
+              <button className="btn btn-ghost btn-sm" onClick={() => go('insights')}>
+                all {inspo.length} →
               </button>
             )}
+          </div>
+          <p className="tiny" style={{ marginBottom: '0.6rem' }}>
+            Write it down while you have it. Every one keeps its date and time, and can be tied to
+            a goal.
+          </p>
+
+          <SparkCapture goals={activeGoals} />
+
+          {todaysSparks.length > 0 && (
+            <>
+              <div className="divider" />
+              <p className="eyebrow" style={{ marginBottom: '0.3rem' }}>
+                Today
+              </p>
+              {todaysSparks.map((s) => (
+                <SparkRow
+                  key={s.id}
+                  spark={s}
+                  goals={goals}
+                  onOpen={setOpenInspo}
+                  onDelete={deleteInspo}
+                />
+              ))}
+            </>
+          )}
+
+          <div className="divider" />
+          <div className="row">
+            <button className="btn btn-sm" onClick={spark} disabled={sparking}>
+              {sparking ? 'Writing…' : '✦ Or have Claude write me a page'}
+            </button>
           </div>
         </section>
 
@@ -321,7 +339,7 @@ function Priorities({ initial, goals, onSave, newId }) {
                 )
               }
             >
-              ✓
+              x
             </button>
             <input
               className="priority-text"

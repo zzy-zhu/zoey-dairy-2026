@@ -3,11 +3,14 @@ import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import './styles.css'
 
-// Theme is applied before paint in App, but set the stored value early so the
-// dreamy background doesn't flash the wrong palette on load.
+// App resolves the theme on mount, but set the stored skin first so the page
+// doesn't flash silver before landing on the terminal.
 const stored = localStorage.getItem('diary_theme')
-if (stored === 'night' || stored === 'day') {
-  document.documentElement.dataset.theme = stored
-}
+document.documentElement.dataset.theme =
+  stored === 'terminal' || stored === 'desktop'
+    ? stored
+    : window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'terminal'
+      : 'desktop'
 
 createRoot(document.getElementById('root')).render(<App />)

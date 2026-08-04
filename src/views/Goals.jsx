@@ -12,7 +12,7 @@ const HORIZONS = [
 ]
 
 export default function Goals() {
-  const { goals, days, saveGoal, deleteGoal, showToast, newId } = useStore()
+  const { goals, days, inspo, saveGoal, deleteGoal, showToast, newId } = useStore()
   const [editing, setEditing] = useState(null) // goal object or 'new'
   const [showArchived, setShowArchived] = useState(false)
 
@@ -75,6 +75,7 @@ export default function Goals() {
             key={g.id}
             goal={g}
             work={recentWork[g.id]}
+            sparkCount={inspo.filter((s) => s.goalId === g.id).length}
             onEdit={() => setEditing(g)}
             onToggle={(id) => toggleMilestone(g, id)}
             onComplete={() => {
@@ -167,7 +168,7 @@ export default function Goals() {
   )
 }
 
-function GoalCard({ goal, work, onEdit, onToggle, onComplete, onReopen }) {
+function GoalCard({ goal, work, sparkCount = 0, onEdit, onToggle, onComplete, onReopen }) {
   const milestones = goal.milestones || []
   const done = milestones.filter((m) => m.done).length
   const pct = goal.doneAt
@@ -225,11 +226,21 @@ function GoalCard({ goal, work, onEdit, onToggle, onComplete, onReopen }) {
         <i style={{ width: `${pct}%` }} />
       </div>
 
-      {work?.total > 0 && (
+      {(work?.total > 0 || sparkCount > 0) && (
         <p className="tiny" style={{ marginTop: '0.6rem' }}>
-          This week: {work.done} of {work.total}{' '}
-          {work.total === 1 ? 'priority' : 'priorities'} tied to this goal
-          {work.done === work.total ? ' — all done' : ''}
+          {work?.total > 0 && (
+            <>
+              This week: {work.done} of {work.total}{' '}
+              {work.total === 1 ? 'priority' : 'priorities'} tied to this goal
+              {work.done === work.total ? ' — all done' : ''}
+            </>
+          )}
+          {work?.total > 0 && sparkCount > 0 && ' · '}
+          {sparkCount > 0 && (
+            <>
+              {sparkCount} {sparkCount === 1 ? 'inspiration' : 'inspirations'} saved
+            </>
+          )}
         </p>
       )}
 
@@ -243,7 +254,7 @@ function GoalCard({ goal, work, onEdit, onToggle, onComplete, onReopen }) {
                 aria-label={m.done ? 'Undo' : 'Done'}
                 onClick={() => onToggle(m.id)}
               >
-                ✓
+                x
               </button>
               <span>{m.text}</span>
             </div>

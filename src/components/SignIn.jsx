@@ -5,13 +5,21 @@ export default function SignIn() {
   return (
     <div className="gate">
       <div className="card card-lift gate-card">
-        <div style={{ fontSize: '2rem', marginBottom: '0.6rem' }}>🌙</div>
-        <h1 className="display" style={{ marginBottom: '0.5rem' }}>
-          Zoey's Diary
-        </h1>
-        <p className="muted" style={{ marginBottom: '1.75rem' }}>
-          A quiet place to write, set goals, and notice the days. Everything you've already
-          written is here waiting.
+        <pre className="gate-art" aria-hidden="true">
+          {String.raw` ______________________________
+|  ___________________________ |
+| |                           ||
+| |  Z O E Y ' S   D I A R Y  ||
+| |  ~~~~~~~~~~~~~~~~~~~~~~~  ||
+| |  > est. 2026    v2.0      ||
+| |___________________________||
+|______________________________|
+     \\_________________________\`
+`}
+        </pre>
+        <p className="muted" style={{ marginBottom: '1.5rem' }}>
+          A place to write, set goals, and notice the days. Everything you've already written is
+          still in here.
         </p>
         <button className="btn btn-primary btn-block" onClick={signIn}>
           <svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true">
@@ -42,8 +50,11 @@ export default function SignIn() {
             {error}
           </p>
         )}
-        <p className="tiny" style={{ marginTop: '1.25rem' }}>
+        <p className="tiny" style={{ marginTop: '1.1rem' }}>
           Stays signed in — add it to your phone's home screen and it opens like an app.
+        </p>
+        <p className="tiny" style={{ marginTop: '0.5rem', opacity: 0.7 }}>
+          &lt;!-- best viewed in any browser, 800x600 or better --&gt;
         </p>
       </div>
     </div>

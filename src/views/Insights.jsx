@@ -1,12 +1,30 @@
 import { useMemo, useState } from 'react'
 import { useStore } from '../lib/store.jsx'
 import InspoSheet from '../components/InspoSheet.jsx'
+import { SparkCapture, SparkRow } from '../components/Sparks.jsx'
 import { generateInsights, getApiKey, insightsToText, setApiKey } from '../lib/insights.js'
 import { dayToDate, fmtShort, todayStr, weekLabel, weekNumber } from '../lib/dates.js'
 
 export default function Insights() {
-  const { meta, entries, inspo, deleteInspo, showToast } = useStore()
+  const { meta, entries, goals, inspo, deleteInspo, showToast } = useStore()
   const [openInspo, setOpenInspo] = useState(null)
+  const [filter, setFilter] = useState('')
+
+  const activeGoals = goals.filter((g) => !g.archived && !g.doneAt)
+
+  const filtered = useMemo(
+    () => (filter ? inspo.filter((d) => d.goalId === filter) : inspo),
+    [inspo, filter]
+  )
+
+  // Newest first, grouped by the day they were written.
+  const grouped = useMemo(() => {
+    const out = {}
+    filtered.forEach((s) => {
+      ;(out[s.date] ||= []).push(s)
+    })
+    return out
+  }, [filtered])
   const currentWeek = weekNumber(meta.startDate, todayStr())
 
   const [key, setKey] = useState(getApiKey())
@@ -60,18 +78,70 @@ export default function Insights() {
 
   return (
     <div className="stack">
-      <section className="card card-lift card-tint-gold" style={{ padding: '1.4rem 1.35rem' }}>
+      <section className="card card-lift card-tint-gold">
         <p className="eyebrow" style={{ color: 'var(--gold)' }}>
-          ✦ Reflections
+          Inspiration + reflections
         </p>
-        <h1 className="display" style={{ margin: '0.45rem 0 0.4rem' }}>
-          What a week was really about
+        <h1 className="display" style={{ margin: '0.3rem 0 0.35rem' }}>
+          Everything you kept
         </h1>
         <p className="muted">
-          Claude reads a week of your entries and names three patterns, plus one thing worth
-          carrying forward.
+          Sparks you wrote down, and what Claude noticed in a week of entries.
         </p>
       </section>
+
+      <div className="section-head">
+        <h2 className="display">Inspiration</h2>
+        <span className="tiny">{inspo.length} written down</span>
+      </div>
+
+      <section className="card">
+        <SparkCapture goals={activeGoals} />
+      </section>
+
+      {goals.length > 0 && inspo.length > 0 && (
+        <div className="row">
+          <button className={`chip${filter === '' ? ' on' : ''}`} onClick={() => setFilter('')}>
+            everything
+          </button>
+          {goals.map((g) => (
+            <button
+              key={g.id}
+              className={`chip${filter === g.id ? ' on' : ''}`}
+              onClick={() => setFilter(g.id)}
+            >
+              {g.title.length > 22 ? g.title.slice(0, 22) + '…' : g.title}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {filtered.length === 0 ? (
+        <p className="empty">
+          {inspo.length === 0 ? 'nothing written down yet' : 'nothing tied to that goal yet'}
+        </p>
+      ) : (
+        Object.entries(grouped).map(([date, items]) => (
+          <section className="card" key={date}>
+            <p className="eyebrow" style={{ marginBottom: '0.35rem' }}>
+              {fmtShort(date)}
+            </p>
+            {items.map((s) => (
+              <SparkRow
+                key={s.id}
+                spark={s}
+                goals={goals}
+                onOpen={setOpenInspo}
+                onDelete={deleteInspo}
+              />
+            ))}
+          </section>
+        ))
+      )}
+
+      <div className="section-head">
+        <h2 className="display">Week reflections</h2>
+      </div>
 
       <section className="card">
         <div className="field">
@@ -181,36 +251,6 @@ export default function Insights() {
               ↓ Save as text
             </button>
           </div>
-        </>
-      )}
-
-      {inspo.length > 0 && (
-        <>
-          <div className="section-head">
-            <h2 className="display">Inspiration pages</h2>
-            <span className="tiny">{inspo.length} saved</span>
-          </div>
-          <section className="card">
-            {inspo.map((d) => (
-              <button key={d.id} className="list-row" onClick={() => setOpenInspo(d)}>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: '0.92rem', fontWeight: 500 }}>{d.title}</div>
-                  <div
-                    className="tiny"
-                    style={{
-                      marginTop: 2,
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {fmtShort(d.date)} · {d.smallStep}
-                  </div>
-                </div>
-                <span className="tiny">→</span>
-              </button>
-            ))}
-          </section>
         </>
       )}
 

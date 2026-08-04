@@ -54,30 +54,53 @@ function png(width, height, rgba) {
   ])
 }
 
-const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t))
+/**
+ * A 16×16 pixel-art terminal window on a black ground: green frame, a title
+ * bar, a prompt caret and a blinking-block cursor. Drawn on a fixed grid and
+ * scaled up with hard edges so it stays crisp at every size.
+ */
+const GRID = 16
+const ART = [
+  '................',
+  '.##############.',
+  '.#............#.',
+  '.#.++++++++++.#.',
+  '.#............#.',
+  '.#.>_.........#.',
+  '.#............#.',
+  '.#.>..**......#.',
+  '.#............#.',
+  '.#.>....**....#.',
+  '.#............#.',
+  '.#.>......@@..#.',
+  '.#............#.',
+  '.#............#.',
+  '.##############.',
+  '................',
+]
+
+const BLACK = [3, 8, 4]
+const GREEN = [61, 255, 128]
+const DIM = [28, 120, 58]
+const AMBER = [255, 211, 77]
+
+const PALETTE = { '.': BLACK, '#': GREEN, '+': DIM, '>': DIM, _: GREEN, '*': DIM, '@': AMBER }
 
 function render(size) {
   const buf = Buffer.alloc(size * size * 4)
-  const deep = [30, 24, 58] // midnight
-  const iris = [122, 103, 240]
-  const coral = [228, 120, 93]
-  const cx = size * 0.56
-  const cy = size * 0.44
-  const r = size * 0.26
-  const bite = { x: size * 0.7, y: size * 0.34, r: size * 0.24 }
+  const cell = size / GRID
 
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      const t = (x / size) * 0.5 + (y / size) * 0.5
-      let color = mix(mix(deep, iris, Math.min(1, t * 1.5)), coral, Math.max(0, t - 0.55) * 1.8)
+      const gx = Math.min(GRID - 1, Math.floor(x / cell))
+      const gy = Math.min(GRID - 1, Math.floor(y / cell))
+      const ch = ART[gy][gx]
+      let color = PALETTE[ch] || BLACK
 
-      // Crescent: inside the moon disc and outside the bite.
-      const d = Math.hypot(x - cx, y - cy)
-      const db = Math.hypot(x - bite.x, y - bite.y)
-      const inMoon = 1 - smooth(d, r - 1.5, r + 1.5)
-      const outBite = smooth(db, bite.r - 1.5, bite.r + 1.5)
-      const moon = inMoon * outBite
-      if (moon > 0) color = mix(color, [255, 249, 240], moon * 0.94)
+      // Faint scanlines over the whole thing, CRT-style.
+      if (y % Math.max(3, Math.round(cell)) === 0) {
+        color = color.map((v) => Math.round(v * 0.82))
+      }
 
       const i = (y * size + x) * 4
       buf[i] = color[0]
@@ -87,11 +110,6 @@ function render(size) {
     }
   }
   return png(size, size, buf)
-}
-
-function smooth(v, a, b) {
-  const t = Math.min(1, Math.max(0, (v - a) / (b - a)))
-  return t * t * (3 - 2 * t)
 }
 
 mkdirSync(outDir, { recursive: true })

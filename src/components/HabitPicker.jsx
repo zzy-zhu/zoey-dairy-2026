@@ -47,7 +47,7 @@ export default function HabitPicker({ habitDefs, values, onToggle, onAddHabit })
               setTimeout(() => input.current?.focus(), 40)
             }}
           >
-            + New habit
+            New habit
           </button>
         )}
       </div>

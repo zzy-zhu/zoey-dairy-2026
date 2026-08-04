@@ -30,13 +30,8 @@ export default function App() {
 function Backdrop() {
   return (
     <>
-      <div className="sky" aria-hidden="true">
-        <span />
-        <span />
-        <span />
-        <span />
-      </div>
-      <div className="grain" aria-hidden="true" />
+      <div className="bg-grid" aria-hidden="true" />
+      <div className="scanlines" aria-hidden="true" />
     </>
   )
 }
@@ -131,7 +126,7 @@ function Chrome() {
   )
 }
 
-/** 'auto' follows the system; 'day' / 'night' pin the palette. */
+/** 'auto' follows the system; 'desktop' / 'terminal' pin the skin. */
 function useTheme() {
   const [pref, setPref] = useState(() => localStorage.getItem('diary_theme_pref') || 'auto')
 
@@ -139,7 +134,7 @@ function useTheme() {
     localStorage.setItem('diary_theme_pref', pref)
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
     const apply = () => {
-      const resolved = pref === 'auto' ? (mq.matches ? 'night' : 'day') : pref
+      const resolved = pref === 'auto' ? (mq.matches ? 'terminal' : 'desktop') : pref
       document.documentElement.dataset.theme = resolved
       localStorage.setItem('diary_theme', resolved)
     }

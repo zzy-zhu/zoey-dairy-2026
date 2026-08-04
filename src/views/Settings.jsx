@@ -3,9 +3,9 @@ import { useStore, DEFAULT_QUESTIONS, DEFAULT_WEEKLY_QUESTIONS } from '../lib/st
 import { fmtLong, isValidDateStr } from '../lib/dates.js'
 
 const THEMES = [
-  { id: 'auto', label: 'Auto', icon: '◐' },
-  { id: 'day', label: 'Day', icon: '☀' },
-  { id: 'night', label: 'Night', icon: '☾' },
+  { id: 'auto', label: 'auto', icon: '◐' },
+  { id: 'desktop', label: 'desktop', icon: '▤' },
+  { id: 'terminal', label: 'terminal', icon: '▮' },
 ]
 
 export default function Settings({ theme, setTheme }) {
@@ -31,7 +31,7 @@ export default function Settings({ theme, setTheme }) {
 
       <section className="card">
         <div className="eyebrow" style={{ marginBottom: '0.6rem' }}>
-          Look
+          Skin
         </div>
         <div className="row">
           {THEMES.map((t) => (

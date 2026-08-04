@@ -47,7 +47,7 @@ export default function Weekly() {
             {checkinsInWeek(currentWeek)} of 7 days written so far.
           </p>
           <div className="row" style={{ marginTop: '1.1rem' }}>
-            <button className="btn btn-primary" onClick={() => setStory(currentWeek)}>
+            <button className="btn btn-accent" onClick={() => setStory(currentWeek)}>
               ▸ Play your week
             </button>
             <button className="btn" onClick={() => setWriting(currentWeek)}>
@@ -143,21 +143,15 @@ export default function Weekly() {
           </div>
           <div className="legend">
             <div>
-              <span
-                className="swatch"
-                style={{ background: 'linear-gradient(140deg,var(--iris),var(--jade))' }}
-              />
+              <span className="swatch" style={{ background: 'var(--blue)' }} />
               Reflection written
             </div>
             <div>
-              <span className="swatch" style={{ background: 'var(--iris-soft)' }} />
+              <span className="swatch" style={{ background: 'var(--blue-soft)' }} />
               Some days written
             </div>
             <div>
-              <span
-                className="swatch"
-                style={{ background: 'transparent', boxShadow: '0 0 0 2px var(--ink)' }}
-              />
+              <span className="swatch" style={{ background: 'var(--yellow)' }} />
               This week
             </div>
           </div>

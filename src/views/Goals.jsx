@@ -254,7 +254,7 @@ function GoalCard({ goal, work, sparkCount = 0, onEdit, onToggle, onComplete, on
                 aria-label={m.done ? 'Undo' : 'Done'}
                 onClick={() => onToggle(m.id)}
               >
-                x
+                ✓
               </button>
               <span>{m.text}</span>
             </div>

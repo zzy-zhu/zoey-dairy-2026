@@ -55,52 +55,30 @@ function png(width, height, rgba) {
 }
 
 /**
- * A 16×16 pixel-art terminal window on a black ground: green frame, a title
- * bar, a prompt caret and a blinking-block cursor. Drawn on a fixed grid and
- * scaled up with hard edges so it stays crisp at every size.
+ * A small vintage travel-poster: gauloise blue ground, a bright yellow sun,
+ * and a cream horizon band. Flat colour, hard edges, no gradients — the way
+ * two-colour printing would have done it.
  */
-const GRID = 16
-const ART = [
-  '................',
-  '.##############.',
-  '.#............#.',
-  '.#.++++++++++.#.',
-  '.#............#.',
-  '.#.>_.........#.',
-  '.#............#.',
-  '.#.>..**......#.',
-  '.#............#.',
-  '.#.>....**....#.',
-  '.#............#.',
-  '.#.>......@@..#.',
-  '.#............#.',
-  '.#............#.',
-  '.##############.',
-  '................',
-]
-
-const BLACK = [3, 8, 4]
-const GREEN = [61, 255, 128]
-const DIM = [28, 120, 58]
-const AMBER = [255, 211, 77]
-
-const PALETTE = { '.': BLACK, '#': GREEN, '+': DIM, '>': DIM, _: GREEN, '*': DIM, '@': AMBER }
+const BLUE = [23, 49, 143]
+const YELLOW = [255, 198, 41]
+const CREAM = [245, 240, 227]
+const INK = [16, 27, 59]
 
 function render(size) {
   const buf = Buffer.alloc(size * size * 4)
-  const cell = size / GRID
+  const sun = { x: size * 0.5, y: size * 0.42, r: size * 0.2 }
+  const horizon = size * 0.68
+  const band = size * 0.055
 
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      const gx = Math.min(GRID - 1, Math.floor(x / cell))
-      const gy = Math.min(GRID - 1, Math.floor(y / cell))
-      const ch = ART[gy][gx]
-      let color = PALETTE[ch] || BLACK
+      let color = BLUE
 
-      // Faint scanlines over the whole thing, CRT-style.
-      if (y % Math.max(3, Math.round(cell)) === 0) {
-        color = color.map((v) => Math.round(v * 0.82))
-      }
+      // Sun, then the cream horizon over the lower half.
+      if (Math.hypot(x - sun.x, y - sun.y) <= sun.r) color = YELLOW
+      if (y >= horizon) color = y < horizon + band ? CREAM : INK
+      // A single cream rule under the sun, poster-style.
+      if (y >= horizon - band * 1.6 && y < horizon - band * 0.6) color = CREAM
 
       const i = (y * size + x) * 4
       buf[i] = color[0]

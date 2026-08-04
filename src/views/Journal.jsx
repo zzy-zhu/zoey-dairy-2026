@@ -131,17 +131,11 @@ export default function Journal() {
           </div>
           <div className="legend">
             <div>
-              <span
-                className="swatch"
-                style={{ background: 'linear-gradient(140deg,var(--iris),var(--jade))' }}
-              />
+              <span className="swatch" style={{ background: 'var(--blue)' }} />
               Written
             </div>
             <div>
-              <span
-                className="swatch"
-                style={{ background: 'transparent', boxShadow: '0 0 0 2px var(--ink)' }}
-              />
+              <span className="swatch" style={{ background: 'var(--yellow)' }} />
               Today
             </div>
             <div>Tap an empty day to write it in.</div>

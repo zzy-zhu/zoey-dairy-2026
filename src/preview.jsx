@@ -203,14 +203,14 @@ function Harness() {
   const initial = new URLSearchParams(location.search).get('view') || 'today'
   const [view, setView] = useState(VIEWS.includes(initial) ? initial : 'today')
   const [theme, setTheme] = useState(
-    new URLSearchParams(location.search).get('theme') || 'desktop'
+    new URLSearchParams(location.search).get('theme') || 'jour'
   )
-  document.documentElement.dataset.theme = theme === 'terminal' ? 'terminal' : 'desktop'
+  document.documentElement.dataset.theme = theme === 'nuit' ? 'nuit' : 'jour'
 
   return (
     <>
-      <div className="bg-grid" aria-hidden="true" />
-      <div className="scanlines" aria-hidden="true" />
+      <div className="paper-wash" aria-hidden="true" />
+      <div className="grain" aria-hidden="true" />
       <div className="shell">
         <header className="masthead">
           <p className="eyebrow">Zoey's Diary</p>
@@ -218,9 +218,9 @@ function Harness() {
             <span className="dot" />
             <button
               className="icon-btn"
-              onClick={() => setTheme(theme === 'desktop' ? 'terminal' : 'desktop')}
+              onClick={() => setTheme(theme === 'jour' ? 'nuit' : 'jour')}
             >
-              ▮
+              ☾
             </button>
           </div>
         </header>

@@ -1,12 +1,21 @@
 import { currentStreak, dayToDate, fmtDayMonth, parseLocalDate, weekLabel } from './dates.js'
 
-/** Stable per-goal accent so a goal reads the same colour everywhere. */
-const HUES = [258, 14, 158, 200, 40, 320]
+/**
+ * Stable per-goal accent so a goal reads the same colour everywhere. Muted
+ * enough to sit beside the blue and yellow without shouting.
+ */
+const ACCENTS = [
+  'hsl(226 72% 42%)', // gauloise blue
+  'hsl(41 88% 48%)', // mustard
+  'hsl(14 55% 46%)', // terracotta
+  'hsl(158 34% 34%)', // olive green
+  'hsl(196 48% 40%)', // faded teal
+  'hsl(300 26% 44%)', // plum
+]
 export function goalAccent(id = '') {
   let sum = 0
   for (let i = 0; i < id.length; i++) sum = (sum + id.charCodeAt(i)) % 997
-  const h = HUES[sum % HUES.length]
-  return `hsl(${h} 64% 56%)`
+  return ACCENTS[sum % ACCENTS.length]
 }
 
 const wordCount = (s) => (s ? s.trim().split(/\s+/).filter(Boolean).length : 0)

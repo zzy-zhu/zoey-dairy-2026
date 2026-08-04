@@ -1,15 +1,15 @@
 # Zoey's Diary
 
-A private diary app dressed as a 2000-era desktop: daily writing, today's
-priorities, goal setting, inspiration you jot down, weekly reflection, and a
-tap-through weekly recap. React + Vite on top of the same Firebase project the
-original 90-day app used, so **every entry, weekly summary and check-in already
-in the database loads straight in** — nothing was migrated or left behind.
+A private diary app: daily writing, today's priorities, goal setting,
+inspiration you jot down, weekly reflection, and a tap-through weekly recap.
+React + Vite on top of the same Firebase project the original 90-day app used,
+so **every entry, weekly summary and check-in already in the database loads
+straight in** — nothing was migrated or left behind.
 
-Two skins, switchable in Settings: **desktop** (silver chrome, bevels, navy
-title bars) and **terminal** (black ground, phosphor green, scanlines).
-Monospace throughout — VT323 for display, IBM Plex Mono for everything else —
-with ASCII checkboxes, block progress meters, and window controls.
+The look is modern French vintage: Instrument Serif for anything that speaks,
+Instrument Sans for anything that labels, warm paper with a little tooth, deep
+gauloise blue and one bright yellow. Two palettes, switchable in Settings —
+**Jour** (cream) and **Nuit** (navy).
 
 Live at <https://zzy-zhu.github.io/zoey-dairy-2026/>
 
@@ -117,7 +117,7 @@ and everything else works as normal.
 src/
   App.jsx            shell: auth gate, nav, theme, hash routing
   firebase.js        app/auth/firestore init (local auth persistence)
-  styles.css         design system — desktop/terminal skins, bevels, scanlines
+  styles.css         design system — jour/nuit palettes, paper, type scale
   lib/
     dates.js         local-time date helpers, day/week/chapter maths, streaks
     store.jsx        auth + Firestore state and every write, via context
@@ -133,6 +133,6 @@ src/
 `preview.html` renders every view against fixture data without signing in —
 handy for design work, and the only way to see a populated recap without a
 week of real entries. It's excluded from the production build; open
-`/zoey-dairy-2026/preview.html?view=story&theme=terminal` while `npm run dev`
+`/zoey-dairy-2026/preview.html?view=story&theme=nuit` while `npm run dev`
 is running (`view` also takes `today`, `goals`, `weekly`, `journal`,
-`insights`, `settings`; `theme` takes `desktop` or `terminal`).
+`insights`, `settings`; `theme` takes `jour` or `nuit`).

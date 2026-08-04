@@ -5,18 +5,14 @@ export default function SignIn() {
   return (
     <div className="gate">
       <div className="card card-lift gate-card">
-        <pre className="gate-art" aria-hidden="true">
-          {String.raw` ______________________________
-|  ___________________________ |
-| |                           ||
-| |  Z O E Y ' S   D I A R Y  ||
-| |  ~~~~~~~~~~~~~~~~~~~~~~~  ||
-| |  > est. 2026    v2.0      ||
-| |___________________________||
-|______________________________|
-     \\_________________________\`
-`}
-        </pre>
+        <div className="emblem" aria-hidden="true">
+          <span>Z</span>
+        </div>
+        <h1 className="display" style={{ marginBottom: '0.15rem' }}>
+          Zoey's Diary
+        </h1>
+        <p className="eyebrow">Est. 2026</p>
+        <i className="rule-y" aria-hidden="true" />
         <p className="muted" style={{ marginBottom: '1.5rem' }}>
           A place to write, set goals, and notice the days. Everything you've already written is
           still in here.
@@ -52,9 +48,6 @@ export default function SignIn() {
         )}
         <p className="tiny" style={{ marginTop: '1.1rem' }}>
           Stays signed in — add it to your phone's home screen and it opens like an app.
-        </p>
-        <p className="tiny" style={{ marginTop: '0.5rem', opacity: 0.7 }}>
-          &lt;!-- best viewed in any browser, 800x600 or better --&gt;
         </p>
       </div>
     </div>

@@ -97,7 +97,7 @@ export default function Today({ go }) {
             <button className="btn btn-primary" onClick={() => setWriting(true)}>
               {written ? 'Open today’s entry' : entry ? 'Continue writing' : 'Write today →'}
             </button>
-            {written && <span className="badge badge-jade">written</span>}
+            {written && <span className="badge badge-gold">written</span>}
           </div>
         </section>
 
@@ -114,7 +114,7 @@ export default function Today({ go }) {
               Seven days, tap by tap. Takes about a minute.
             </p>
             <div className="row" style={{ marginTop: '1.05rem' }}>
-              <button className="btn btn-primary" onClick={() => setStory(weekN)}>
+              <button className="btn btn-accent" onClick={() => setStory(weekN)}>
                 ▸ Play your week
               </button>
               {!weekDone && (
@@ -339,7 +339,7 @@ function Priorities({ initial, goals, onSave, newId }) {
                 )
               }
             >
-              x
+              ✓
             </button>
             <input
               className="priority-text"
